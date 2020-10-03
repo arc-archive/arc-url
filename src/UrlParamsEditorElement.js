@@ -138,7 +138,7 @@ export class UrlParamsEditorElement extends ArcResizableMixin(ArcOverlayMixin(Va
    */
   [valueChanged](value) {
     const { queryParameters=[] } = this;
-    const hasParams = !queryParameters.length;
+    const hasParams = !!queryParameters.length;
     if (!value && !hasParams) {
       return;
     }

@@ -16,7 +16,7 @@ export default css`
 }
 
 .query-title {
-  font-size: 13px;
+  font-size: .869rem;
   font-weight: 500;
   text-transform: uppercase;
   display: block;
@@ -26,7 +26,7 @@ export default css`
 .table-labels {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: .94rem;
   font-weight: 500;
   height: 48px;
 }

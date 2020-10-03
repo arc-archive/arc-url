@@ -47,32 +47,38 @@ export declare class UrlInputEditorElement {
 
   /**
    * Current URL value.
+   * @attribute
    */
   value: string;
   [valueValue]: string;
 
   /**
    * Enables outlined theme.
+   * @attribute
    */
   outlined: boolean;
 
   /**
    * Enables compatibility with Anypoint components.
+   * @attribute
    */
   compatibility: boolean;
 
   /**
    * True if detailed editor is opened.
+   * @attribute
    */
   detailsOpened: boolean;
 
   /**
    * Default protocol for the URL if it's missing.
+   * @attribute
    */
   defaultProtocol: string;
 
   /**
    * When set the editor is in read only mode.
+   * @attribute
    */
   readOnly: boolean;
   
@@ -129,7 +135,7 @@ export declare class UrlInputEditorElement {
    *
    * @param label A label to use with GA event
    */
-  [dispatchAnalyticsEvent](label: string): CustomEvent;
+  [dispatchAnalyticsEvent](label: string): void;
 
   /**
    * HTTP encode or decode query parameters depending on [type].

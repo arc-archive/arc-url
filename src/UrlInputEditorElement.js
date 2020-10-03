@@ -22,6 +22,7 @@ import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@anypoint-web-components/anypoint-input/anypoint-input.js';
 import '@anypoint-web-components/anypoint-autocomplete/anypoint-autocomplete.js';
 import '@anypoint-web-components/anypoint-collapse/anypoint-collapse.js';
+import { TelemetryEvents, RequestEvents, RequestEventTypes } from '@advanced-rest-client/arc-events';
 import { ArcModelEvents } from '@advanced-rest-client/arc-models';
 import classStyles from './styles/UrlInputEditor.styles.js';
 import { UrlParser } from './UrlParser.js';
@@ -52,7 +53,6 @@ import {
   dispatchAnalyticsEvent,
   processUrlParams,
   autocompleteQuery,
-  enterKeyHandler,
   autocompleteResizeHandler,
   setShadowHeight,
   mainFocusBlurHandler,
@@ -66,6 +66,7 @@ import {
 
 /** @typedef {import('@anypoint-web-components/anypoint-autocomplete').AnypointAutocomplete} AnypointAutocomplete */
 /** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('@advanced-rest-client/arc-events').RequestChangeEvent} RequestChangeEvent */
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
 /** @typedef {import('./UrlParamsEditorElement').UrlParamsEditorElement} UrlParamsEditorElement */
 
@@ -162,7 +163,7 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
    * @param {EventTarget} node
    */
   _attachListeners(node) {
-    node.addEventListener('url-value-changed', this[extValueChangeHandler]);
+    node.addEventListener(RequestEventTypes.State.urlChange, this[extValueChangeHandler]);
     this.addEventListener('keydown', this[keyDownHandler]);
   }
 
@@ -170,7 +171,7 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
    * @param {EventTarget} node
    */
   _detachListeners(node) {
-    node.removeEventListener('url-value-changed', this[extValueChangeHandler]);
+    node.removeEventListener(RequestEventTypes.State.urlChange, this[extValueChangeHandler]);
     this.removeEventListener('keydown', this[keyDownHandler]);
   }
 
@@ -178,13 +179,7 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
    * A handler that is called on input
    */
   [notifyChange]() {
-    this.dispatchEvent(new CustomEvent('url-value-changed', {
-      bubbles: true,
-      composed: true,
-      detail: {
-        value: this.value,
-      }
-    }));
+    RequestEvents.State.urlChange(this, this.value);
   }
 
   /**
@@ -192,15 +187,15 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
    * If this element is not the source of the event then it will update the `value` property.
    * It's to be used besides the Polymer's data binding system.
    *
-   * @param {CustomEvent} e
+   * @param {RequestChangeEvent} e
    */
   [extValueChangeHandler](e) {
     if (e.composedPath()[0] === this || this.readOnly) {
       return;
     }
-    const { value } = e.detail;
-    if (this.value !== value) {
-      this.value = value;
+    const { changedProperty, changedValue } = e;
+    if (changedProperty === 'url' && changedValue !== this.value) {
+      this.value = changedValue;
     }
   }
 
@@ -237,21 +232,14 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
   /**
    * Dispatches analytics event with "event" type.
    * @param {String} label A label to use with GA event
-   * @return {CustomEvent}
    */
   [dispatchAnalyticsEvent](label) {
-    const e = new CustomEvent('send-analytics', {
-      bubbles: true,
-      composed: true,
-      detail: {
-        type: 'event',
-        category: 'Request view',
-        action: 'URL editor',
-        label
-      }
-    });
-    this.dispatchEvent(e);
-    return e;
+    const init = {
+      category: 'Request view',
+      action: 'URL editor',
+      label,
+    }
+    TelemetryEvents.event(this, init);
   }
 
   /**
@@ -350,20 +338,9 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
     if (!target || target.nodeName !== 'INPUT') {
       return;
     }
-    if ((e.code && (e.code === 'Enter' || e.code === 'NumpadEnter')) || (e.keyCode && e.keyCode === 13)) {
-      this[enterKeyHandler]();
+    if (['Enter', 'NumpadEnter'].includes(e.code)) {
+      RequestEvents.send(this);
     }
-  }
-
-  /**
-   * A handler called when the user press "enter" in any of the form fields.
-   * This will send a `send` event.
-   */
-  [enterKeyHandler]() {
-    this.dispatchEvent(new CustomEvent('send-request', {
-      bubbles: true,
-      composed: true,
-    }));
   }
 
   /**
@@ -371,22 +348,21 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
    * @return {boolean}
    */
   _getValidity() {
-    let element = /** @type UrlParamsEditorElement|AnypointInput */ (null);
     if (this.detailsOpened) {
-      element = /** @type UrlParamsEditorElement */ (this.shadowRoot.querySelector('url-params-editor'));
-    } else {
-      element = /** @type AnypointInput */ (this.shadowRoot.querySelector('.main-input'));
+      const element = /** @type UrlParamsEditorElement */ (this.shadowRoot.querySelector('url-params-editor'));
+      return element.validate(this.value);
     }
-    if (!element) {
-      return true;
-    }
-    return element.validate(this.value);
+    const element = /** @type HTMLInputElement */ (this.shadowRoot.querySelector('.main-input'));
+    return element.validity.valid;
   }
 
   /**
    * @param {Event} e A handler for either main input or the details editor value change
    */
   [inputHandler](e) {
+    if (this.readOnly) {
+      return;
+    }
     const node = /** @type HTMLInputElement */ (e.target);
     this.value = node.value;
     this[notifyChange]();
@@ -524,6 +500,7 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
         @focus="${this[mainFocusBlurHandler]}"
         @blur="${this[mainFocusBlurHandler]}"
         @input="${this[inputHandler]}"
+        aria-label="The URL value"
       />
       <arc-icon 
         icon="${inputIcon}"

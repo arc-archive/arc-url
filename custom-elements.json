@@ -1,0 +1,810 @@
+{
+  "version": "experimental",
+  "tags": [
+    {
+      "name": "url-input-editor",
+      "path": "./url-input-editor.js",
+      "description": "The request URL editor\n\nThe element renders an editor for a HTTP request editor.",
+      "attributes": [
+        {
+          "name": "value",
+          "description": "Current URL value.",
+          "type": "string"
+        },
+        {
+          "name": "outlined",
+          "description": "Enables outlined theme.",
+          "type": "boolean"
+        },
+        {
+          "name": "compatibility",
+          "description": "Enables compatibility with Anypoint components.",
+          "type": "boolean"
+        },
+        {
+          "name": "detailsOpened",
+          "description": "True if detailed editor is opened.",
+          "type": "boolean"
+        },
+        {
+          "name": "defaultProtocol",
+          "description": "Default protocol for the URL if it's missing.",
+          "type": "string"
+        },
+        {
+          "name": "readOnly",
+          "description": "When set the editor is in read only mode.",
+          "type": "boolean"
+        },
+        {
+          "name": "validator",
+          "description": "Name of the validator or validators to use.\nIf the element should be validated by more than one validator then separate names with\nspace. See docs for `ValidatorMixin` for description of how to define a\nvalidator.",
+          "type": "string"
+        },
+        {
+          "name": "invalid",
+          "description": "True if the last call to `validate` is invalid.",
+          "type": "boolean"
+        }
+      ],
+      "properties": [
+        {
+          "name": "styles",
+          "type": "CSSResult"
+        },
+        {
+          "name": "value",
+          "attribute": "value",
+          "description": "Current URL value.",
+          "type": "string"
+        },
+        {
+          "name": "outlined",
+          "attribute": "outlined",
+          "description": "Enables outlined theme.",
+          "type": "boolean"
+        },
+        {
+          "name": "compatibility",
+          "attribute": "compatibility",
+          "description": "Enables compatibility with Anypoint components.",
+          "type": "boolean"
+        },
+        {
+          "name": "detailsOpened",
+          "attribute": "detailsOpened",
+          "description": "True if detailed editor is opened.",
+          "type": "boolean"
+        },
+        {
+          "name": "defaultProtocol",
+          "attribute": "defaultProtocol",
+          "description": "Default protocol for the URL if it's missing.",
+          "type": "string"
+        },
+        {
+          "name": "readOnly",
+          "attribute": "readOnly",
+          "description": "When set the editor is in read only mode.",
+          "type": "boolean"
+        },
+        {
+          "name": "inputIcon",
+          "description": "An icon name for the main input suffix icon",
+          "type": "string"
+        },
+        {
+          "name": "inputIconTitle",
+          "description": "A title for the main input suffix icon",
+          "type": "string"
+        },
+        {
+          "name": "eventsTarget",
+          "description": "By default the element listens on the `window` object. If this value is set,\nthen all events listeners will be attached to this object instead of `window`.",
+          "type": "EventTarget"
+        },
+        {
+          "name": "validator",
+          "attribute": "validator",
+          "description": "Name of the validator or validators to use.\nIf the element should be validated by more than one validator then separate names with\nspace. See docs for `ValidatorMixin` for description of how to define a\nvalidator.",
+          "type": "string"
+        },
+        {
+          "name": "validationStates",
+          "description": "After calling `validate()` this is be populated by latest result of the\ntest for each validator. Result item contains following properties:\n\n- validator `string` Name of the validator\n- valid `boolean` Result of the test\n- message `string` Error message\n\nThis property is `undefined` if `validator` is not set.",
+          "type": "ValidationResult[]"
+        },
+        {
+          "name": "invalid",
+          "attribute": "invalid",
+          "description": "True if the last call to `validate` is invalid.",
+          "type": "boolean"
+        }
+      ],
+      "events": [
+        {
+          "name": "change",
+          "description": "When the editor value change"
+        }
+      ]
+    },
+    {
+      "name": "url-params-editor",
+      "path": "./url-params-editor.js",
+      "description": "An element that works with the `url-input-editor` that renders an overlay\nwith query parameter values.",
+      "attributes": [
+        {
+          "name": "value",
+          "description": "Current value of the editor.",
+          "type": "string"
+        },
+        {
+          "name": "outlined",
+          "description": "Enables outlined theme.",
+          "type": "boolean"
+        },
+        {
+          "name": "compatibility",
+          "description": "Enables compatibility with Anypoint components.",
+          "type": "boolean"
+        },
+        {
+          "name": "readOnly",
+          "description": "When set the editor is in read only mode.",
+          "type": "boolean"
+        },
+        {
+          "name": "opened",
+          "description": "True if the overlay is currently displayed.",
+          "type": "boolean"
+        },
+        {
+          "name": "withBackdrop",
+          "description": "Set to true to display a backdrop behind the overlay. It traps the focus\nwithin the light DOM of the overlay.",
+          "type": "boolean"
+        },
+        {
+          "name": "noAutoFocus",
+          "description": "Set to true to disable auto-focusing the overlay or child nodes with\nthe `autofocus` attribute` when the overlay is opened.",
+          "type": "boolean"
+        },
+        {
+          "name": "noCancelOnEscKey",
+          "description": "Set to true to disable canceling the overlay with the ESC key.",
+          "type": "boolean"
+        },
+        {
+          "name": "noCancelOnOutsideClick",
+          "description": "Set to true to disable canceling the overlay by clicking outside it.",
+          "type": "boolean"
+        },
+        {
+          "name": "restoreFocusOnClose",
+          "description": "Set to true to enable restoring of focus when overlay is closed.",
+          "type": "boolean"
+        },
+        {
+          "name": "allowClickThrough",
+          "description": "Set to true to allow clicks to go through overlays.\nWhen the user clicks outside this overlay, the click may\nclose the overlay below.",
+          "type": "boolean"
+        },
+        {
+          "name": "alwaysOnTop",
+          "description": "Set to true to keep overlay always on top.",
+          "type": "boolean"
+        },
+        {
+          "name": "scrollAction",
+          "description": "Determines which action to perform when scroll outside an opened overlay\nhappens. Possible values: lock - blocks scrolling from happening, refit -\ncomputes the new position on the overlay cancel - causes the overlay to\nclose",
+          "type": "string"
+        },
+        {
+          "name": "noOverlap",
+          "description": "Will position the element around the positionTarget without overlapping\nit.",
+          "type": "boolean"
+        },
+        {
+          "name": "horizontalAlign",
+          "description": "The orientation against which to align the element horizontally\nrelative to the `positionTarget`. Possible values are \"left\", \"right\",\n\"center\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "verticalAlign",
+          "description": "The orientation against which to align the element vertically\nrelative to the `positionTarget`. Possible values are \"top\", \"bottom\",\n\"middle\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "dynamicAlign",
+          "description": "If true, it will use `horizontalAlign` and `verticalAlign` values as\npreferred alignment and if there's not enough space, it will pick the\nvalues which minimize the cropping.",
+          "type": "boolean"
+        },
+        {
+          "name": "horizontalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `horizontalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `horizontalAlign`.\n\nIf `horizontalAlign` is \"left\" or \"center\", this offset will increase or\ndecrease the distance to the left side of the screen: a negative offset\nwill move the dropdown to the left; a positive one, to the right.\n\nConversely if `horizontalAlign` is \"right\", this offset will increase\nor decrease the distance to the right side of the screen: a negative\noffset will move the dropdown to the right; a positive one, to the left.",
+          "type": "number"
+        },
+        {
+          "name": "verticalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `verticalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `verticalAlign`.\n\nIf `verticalAlign` is \"top\" or \"middle\", this offset will increase or\ndecrease the distance to the top side of the screen: a negative offset\nwill move the dropdown upwards; a positive one, downwards.\n\nConversely if `verticalAlign` is \"bottom\", this offset will increase\nor decrease the distance to the bottom side of the screen: a negative\noffset will move the dropdown downwards; a positive one, upwards.",
+          "type": "number"
+        },
+        {
+          "name": "autoFitOnAttach",
+          "description": "Set to true to auto-fit on attach.",
+          "type": "boolean"
+        },
+        {
+          "name": "fitPositionTarget",
+          "description": "When set it fits the positioning target width.",
+          "type": "boolean"
+        },
+        {
+          "name": "validator",
+          "description": "Name of the validator or validators to use.\nIf the element should be validated by more than one validator then separate names with\nspace. See docs for `ValidatorMixin` for description of how to define a\nvalidator.",
+          "type": "string"
+        },
+        {
+          "name": "invalid",
+          "description": "True if the last call to `validate` is invalid.",
+          "type": "boolean"
+        }
+      ],
+      "properties": [
+        {
+          "name": "styles",
+          "type": "CSSResult"
+        },
+        {
+          "name": "value",
+          "attribute": "value",
+          "description": "Current value of the editor.",
+          "type": "string"
+        },
+        {
+          "name": "outlined",
+          "attribute": "outlined",
+          "description": "Enables outlined theme.",
+          "type": "boolean"
+        },
+        {
+          "name": "compatibility",
+          "attribute": "compatibility",
+          "description": "Enables compatibility with Anypoint components.",
+          "type": "boolean"
+        },
+        {
+          "name": "model",
+          "description": "Computed data model for the view.",
+          "type": "ViewModel"
+        },
+        {
+          "name": "queryParameters",
+          "description": "List of query parameters model.\nIf not set then it is computed from current URL.\n\nModel for query parameters is:\n- name {String} param name\n- value {String} param value\n- enabled {Boolean} is param included into the `value`",
+          "type": "QueryParameter[]"
+        },
+        {
+          "name": "readOnly",
+          "attribute": "readOnly",
+          "description": "When set the editor is in read only mode.",
+          "type": "boolean"
+        },
+        {
+          "name": "opened",
+          "attribute": "opened",
+          "description": "True if the overlay is currently displayed.",
+          "type": "boolean"
+        },
+        {
+          "name": "withBackdrop",
+          "attribute": "withBackdrop",
+          "description": "Set to true to display a backdrop behind the overlay. It traps the focus\nwithin the light DOM of the overlay.",
+          "type": "boolean"
+        },
+        {
+          "name": "noAutoFocus",
+          "attribute": "noAutoFocus",
+          "description": "Set to true to disable auto-focusing the overlay or child nodes with\nthe `autofocus` attribute` when the overlay is opened.",
+          "type": "boolean"
+        },
+        {
+          "name": "noCancelOnEscKey",
+          "attribute": "noCancelOnEscKey",
+          "description": "Set to true to disable canceling the overlay with the ESC key.",
+          "type": "boolean"
+        },
+        {
+          "name": "noCancelOnOutsideClick",
+          "attribute": "noCancelOnOutsideClick",
+          "description": "Set to true to disable canceling the overlay by clicking outside it.",
+          "type": "boolean"
+        },
+        {
+          "name": "closingReason",
+          "description": "Contains the reason(s) this overlay was last closed (see\n`overlay-closed`). `ArcOverlayMixin` provides the `canceled`\nreason; implementers of the behavior can provide other reasons in\naddition to `canceled`.",
+          "type": "{ type: Object; }"
+        },
+        {
+          "name": "restoreFocusOnClose",
+          "attribute": "restoreFocusOnClose",
+          "description": "Set to true to enable restoring of focus when overlay is closed.",
+          "type": "boolean"
+        },
+        {
+          "name": "allowClickThrough",
+          "attribute": "allowClickThrough",
+          "description": "Set to true to allow clicks to go through overlays.\nWhen the user clicks outside this overlay, the click may\nclose the overlay below.",
+          "type": "boolean"
+        },
+        {
+          "name": "alwaysOnTop",
+          "attribute": "alwaysOnTop",
+          "description": "Set to true to keep overlay always on top.",
+          "type": "boolean"
+        },
+        {
+          "name": "scrollAction",
+          "attribute": "scrollAction",
+          "description": "Determines which action to perform when scroll outside an opened overlay\nhappens. Possible values: lock - blocks scrolling from happening, refit -\ncomputes the new position on the overlay cancel - causes the overlay to\nclose",
+          "type": "string"
+        },
+        {
+          "name": "canceled",
+          "type": "boolean"
+        },
+        {
+          "name": "isAttached",
+          "type": "boolean"
+        },
+        {
+          "name": "backdropElement",
+          "type": "ArcOverlayBackdrop"
+        },
+        {
+          "name": "onopenedchanged",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onoverlaycanceled",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onoverlayopened",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onoverlayclosed",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onopened",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onclosed",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "sizingTarget",
+          "description": "The element that will receive a `max-height`/`width`. By default it is\nthe same as `this`, but it can be set to a child element. This is useful,\nfor example, for implementing a scrolling region inside the element.",
+          "type": "HTMLElement"
+        },
+        {
+          "name": "fitInto",
+          "description": "The element to fit `this` into.",
+          "type": "HTMLElement"
+        },
+        {
+          "name": "noOverlap",
+          "attribute": "noOverlap",
+          "description": "Will position the element around the positionTarget without overlapping\nit.",
+          "type": "boolean"
+        },
+        {
+          "name": "positionTarget",
+          "description": "The element that should be used to position the element. If not set, it\nwill default to the parent node.",
+          "type": "HTMLElement"
+        },
+        {
+          "name": "horizontalAlign",
+          "attribute": "horizontalAlign",
+          "description": "The orientation against which to align the element horizontally\nrelative to the `positionTarget`. Possible values are \"left\", \"right\",\n\"center\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "verticalAlign",
+          "attribute": "verticalAlign",
+          "description": "The orientation against which to align the element vertically\nrelative to the `positionTarget`. Possible values are \"top\", \"bottom\",\n\"middle\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "dynamicAlign",
+          "attribute": "dynamicAlign",
+          "description": "If true, it will use `horizontalAlign` and `verticalAlign` values as\npreferred alignment and if there's not enough space, it will pick the\nvalues which minimize the cropping.",
+          "type": "boolean"
+        },
+        {
+          "name": "horizontalOffset",
+          "attribute": "horizontalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `horizontalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `horizontalAlign`.\n\nIf `horizontalAlign` is \"left\" or \"center\", this offset will increase or\ndecrease the distance to the left side of the screen: a negative offset\nwill move the dropdown to the left; a positive one, to the right.\n\nConversely if `horizontalAlign` is \"right\", this offset will increase\nor decrease the distance to the right side of the screen: a negative\noffset will move the dropdown to the right; a positive one, to the left.",
+          "type": "number"
+        },
+        {
+          "name": "verticalOffset",
+          "attribute": "verticalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `verticalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `verticalAlign`.\n\nIf `verticalAlign` is \"top\" or \"middle\", this offset will increase or\ndecrease the distance to the top side of the screen: a negative offset\nwill move the dropdown upwards; a positive one, downwards.\n\nConversely if `verticalAlign` is \"bottom\", this offset will increase\nor decrease the distance to the bottom side of the screen: a negative\noffset will move the dropdown downwards; a positive one, upwards.",
+          "type": "number"
+        },
+        {
+          "name": "autoFitOnAttach",
+          "attribute": "autoFitOnAttach",
+          "description": "Set to true to auto-fit on attach.",
+          "type": "boolean"
+        },
+        {
+          "name": "fitPositionTarget",
+          "attribute": "fitPositionTarget",
+          "description": "When set it fits the positioning target width.",
+          "type": "boolean"
+        },
+        {
+          "name": "validator",
+          "attribute": "validator",
+          "description": "Name of the validator or validators to use.\nIf the element should be validated by more than one validator then separate names with\nspace. See docs for `ValidatorMixin` for description of how to define a\nvalidator.",
+          "type": "string"
+        },
+        {
+          "name": "validationStates",
+          "description": "After calling `validate()` this is be populated by latest result of the\ntest for each validator. Result item contains following properties:\n\n- validator `string` Name of the validator\n- valid `boolean` Result of the test\n- message `string` Error message\n\nThis property is `undefined` if `validator` is not set.",
+          "type": "ValidationResult[]"
+        },
+        {
+          "name": "invalid",
+          "attribute": "invalid",
+          "description": "True if the last call to `validate` is invalid.",
+          "type": "boolean"
+        }
+      ],
+      "events": [
+        {
+          "name": "change",
+          "description": "When a value change"
+        },
+        {
+          "name": "urlencode",
+          "description": "When requesting to encode current value"
+        },
+        {
+          "name": "urldecode",
+          "description": "When requesting to decode current value"
+        },
+        {
+          "name": "opened",
+          "description": "Dispatched after the element is rendered opened"
+        },
+        {
+          "name": "closed",
+          "description": "Dispatched after the element is rendered closed"
+        },
+        {
+          "name": "cancel",
+          "description": "Dispatched when element is about to be closed. Cancelling the event stops the closing."
+        }
+      ]
+    },
+    {
+      "name": "web-url-input",
+      "path": "./web-url-input.js",
+      "description": "An element to display a dialog to enter an URL with auto hints\n\n### Example\n\n```html\n<web-url-input purpose=\"open-browser\"></web-url-input>\n```",
+      "attributes": [
+        {
+          "name": "value",
+          "description": "The current URL value.",
+          "type": "string"
+        },
+        {
+          "name": "opened",
+          "description": "True if the overlay is currently displayed.",
+          "type": "boolean"
+        },
+        {
+          "name": "withBackdrop",
+          "description": "Set to true to display a backdrop behind the overlay. It traps the focus\nwithin the light DOM of the overlay.",
+          "type": "boolean"
+        },
+        {
+          "name": "noAutoFocus",
+          "description": "Set to true to disable auto-focusing the overlay or child nodes with\nthe `autofocus` attribute` when the overlay is opened.",
+          "type": "boolean"
+        },
+        {
+          "name": "noCancelOnEscKey",
+          "description": "Set to true to disable canceling the overlay with the ESC key.",
+          "type": "boolean"
+        },
+        {
+          "name": "noCancelOnOutsideClick",
+          "description": "Set to true to disable canceling the overlay by clicking outside it.",
+          "type": "boolean"
+        },
+        {
+          "name": "restoreFocusOnClose",
+          "description": "Set to true to enable restoring of focus when overlay is closed.",
+          "type": "boolean"
+        },
+        {
+          "name": "allowClickThrough",
+          "description": "Set to true to allow clicks to go through overlays.\nWhen the user clicks outside this overlay, the click may\nclose the overlay below.",
+          "type": "boolean"
+        },
+        {
+          "name": "alwaysOnTop",
+          "description": "Set to true to keep overlay always on top.",
+          "type": "boolean"
+        },
+        {
+          "name": "scrollAction",
+          "description": "Determines which action to perform when scroll outside an opened overlay\nhappens. Possible values: lock - blocks scrolling from happening, refit -\ncomputes the new position on the overlay cancel - causes the overlay to\nclose",
+          "type": "string"
+        },
+        {
+          "name": "noOverlap",
+          "description": "Will position the element around the positionTarget without overlapping\nit.",
+          "type": "boolean"
+        },
+        {
+          "name": "horizontalAlign",
+          "description": "The orientation against which to align the element horizontally\nrelative to the `positionTarget`. Possible values are \"left\", \"right\",\n\"center\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "verticalAlign",
+          "description": "The orientation against which to align the element vertically\nrelative to the `positionTarget`. Possible values are \"top\", \"bottom\",\n\"middle\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "dynamicAlign",
+          "description": "If true, it will use `horizontalAlign` and `verticalAlign` values as\npreferred alignment and if there's not enough space, it will pick the\nvalues which minimize the cropping.",
+          "type": "boolean"
+        },
+        {
+          "name": "horizontalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `horizontalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `horizontalAlign`.\n\nIf `horizontalAlign` is \"left\" or \"center\", this offset will increase or\ndecrease the distance to the left side of the screen: a negative offset\nwill move the dropdown to the left; a positive one, to the right.\n\nConversely if `horizontalAlign` is \"right\", this offset will increase\nor decrease the distance to the right side of the screen: a negative\noffset will move the dropdown to the right; a positive one, to the left.",
+          "type": "number"
+        },
+        {
+          "name": "verticalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `verticalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `verticalAlign`.\n\nIf `verticalAlign` is \"top\" or \"middle\", this offset will increase or\ndecrease the distance to the top side of the screen: a negative offset\nwill move the dropdown upwards; a positive one, downwards.\n\nConversely if `verticalAlign` is \"bottom\", this offset will increase\nor decrease the distance to the bottom side of the screen: a negative\noffset will move the dropdown downwards; a positive one, upwards.",
+          "type": "number"
+        },
+        {
+          "name": "autoFitOnAttach",
+          "description": "Set to true to auto-fit on attach.",
+          "type": "boolean"
+        },
+        {
+          "name": "fitPositionTarget",
+          "description": "When set it fits the positioning target width.",
+          "type": "boolean"
+        }
+      ],
+      "properties": [
+        {
+          "name": "styles",
+          "type": "CSSResult"
+        },
+        {
+          "name": "value",
+          "attribute": "value",
+          "description": "The current URL value.",
+          "type": "string"
+        },
+        {
+          "name": "suggestionsOpened",
+          "description": "True when the suggestions for the URL is opened.",
+          "type": "boolean"
+        },
+        {
+          "name": "purpose",
+          "description": "A value to be set in the detail object of the main action custom event.\nThe editor can server different purposes. Re-set the purpose to inform\nthe application about purpose of the event.",
+          "type": "string | undefined"
+        },
+        {
+          "name": "compatibility",
+          "description": "Enables compatibility with Anypoint platform",
+          "type": "boolean"
+        },
+        {
+          "name": "outlined",
+          "description": "Enables Material Design Outlined inputs",
+          "type": "boolean"
+        },
+        {
+          "name": "confirmDisabled",
+          "description": "true when the confirm button is rendered disabled",
+          "type": "boolean"
+        },
+        {
+          "name": "opened",
+          "attribute": "opened",
+          "description": "True if the overlay is currently displayed.",
+          "type": "boolean"
+        },
+        {
+          "name": "withBackdrop",
+          "attribute": "withBackdrop",
+          "description": "Set to true to display a backdrop behind the overlay. It traps the focus\nwithin the light DOM of the overlay.",
+          "type": "boolean"
+        },
+        {
+          "name": "noAutoFocus",
+          "attribute": "noAutoFocus",
+          "description": "Set to true to disable auto-focusing the overlay or child nodes with\nthe `autofocus` attribute` when the overlay is opened.",
+          "type": "boolean"
+        },
+        {
+          "name": "noCancelOnEscKey",
+          "attribute": "noCancelOnEscKey",
+          "description": "Set to true to disable canceling the overlay with the ESC key.",
+          "type": "boolean"
+        },
+        {
+          "name": "noCancelOnOutsideClick",
+          "attribute": "noCancelOnOutsideClick",
+          "description": "Set to true to disable canceling the overlay by clicking outside it.",
+          "type": "boolean"
+        },
+        {
+          "name": "closingReason",
+          "description": "Contains the reason(s) this overlay was last closed (see\n`overlay-closed`). `ArcOverlayMixin` provides the `canceled`\nreason; implementers of the behavior can provide other reasons in\naddition to `canceled`.",
+          "type": "{ type: Object; }"
+        },
+        {
+          "name": "restoreFocusOnClose",
+          "attribute": "restoreFocusOnClose",
+          "description": "Set to true to enable restoring of focus when overlay is closed.",
+          "type": "boolean"
+        },
+        {
+          "name": "allowClickThrough",
+          "attribute": "allowClickThrough",
+          "description": "Set to true to allow clicks to go through overlays.\nWhen the user clicks outside this overlay, the click may\nclose the overlay below.",
+          "type": "boolean"
+        },
+        {
+          "name": "alwaysOnTop",
+          "attribute": "alwaysOnTop",
+          "description": "Set to true to keep overlay always on top.",
+          "type": "boolean"
+        },
+        {
+          "name": "scrollAction",
+          "attribute": "scrollAction",
+          "description": "Determines which action to perform when scroll outside an opened overlay\nhappens. Possible values: lock - blocks scrolling from happening, refit -\ncomputes the new position on the overlay cancel - causes the overlay to\nclose",
+          "type": "string"
+        },
+        {
+          "name": "canceled",
+          "type": "boolean"
+        },
+        {
+          "name": "isAttached",
+          "type": "boolean"
+        },
+        {
+          "name": "backdropElement",
+          "type": "ArcOverlayBackdrop"
+        },
+        {
+          "name": "onopenedchanged",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onoverlaycanceled",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onoverlayopened",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onoverlayclosed",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onopened",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onclosed",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "sizingTarget",
+          "description": "The element that will receive a `max-height`/`width`. By default it is\nthe same as `this`, but it can be set to a child element. This is useful,\nfor example, for implementing a scrolling region inside the element.",
+          "type": "HTMLElement"
+        },
+        {
+          "name": "fitInto",
+          "description": "The element to fit `this` into.",
+          "type": "HTMLElement"
+        },
+        {
+          "name": "noOverlap",
+          "attribute": "noOverlap",
+          "description": "Will position the element around the positionTarget without overlapping\nit.",
+          "type": "boolean"
+        },
+        {
+          "name": "positionTarget",
+          "description": "The element that should be used to position the element. If not set, it\nwill default to the parent node.",
+          "type": "HTMLElement"
+        },
+        {
+          "name": "horizontalAlign",
+          "attribute": "horizontalAlign",
+          "description": "The orientation against which to align the element horizontally\nrelative to the `positionTarget`. Possible values are \"left\", \"right\",\n\"center\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "verticalAlign",
+          "attribute": "verticalAlign",
+          "description": "The orientation against which to align the element vertically\nrelative to the `positionTarget`. Possible values are \"top\", \"bottom\",\n\"middle\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "dynamicAlign",
+          "attribute": "dynamicAlign",
+          "description": "If true, it will use `horizontalAlign` and `verticalAlign` values as\npreferred alignment and if there's not enough space, it will pick the\nvalues which minimize the cropping.",
+          "type": "boolean"
+        },
+        {
+          "name": "horizontalOffset",
+          "attribute": "horizontalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `horizontalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `horizontalAlign`.\n\nIf `horizontalAlign` is \"left\" or \"center\", this offset will increase or\ndecrease the distance to the left side of the screen: a negative offset\nwill move the dropdown to the left; a positive one, to the right.\n\nConversely if `horizontalAlign` is \"right\", this offset will increase\nor decrease the distance to the right side of the screen: a negative\noffset will move the dropdown to the right; a positive one, to the left.",
+          "type": "number"
+        },
+        {
+          "name": "verticalOffset",
+          "attribute": "verticalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `verticalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `verticalAlign`.\n\nIf `verticalAlign` is \"top\" or \"middle\", this offset will increase or\ndecrease the distance to the top side of the screen: a negative offset\nwill move the dropdown upwards; a positive one, downwards.\n\nConversely if `verticalAlign` is \"bottom\", this offset will increase\nor decrease the distance to the bottom side of the screen: a negative\noffset will move the dropdown downwards; a positive one, upwards.",
+          "type": "number"
+        },
+        {
+          "name": "autoFitOnAttach",
+          "attribute": "autoFitOnAttach",
+          "description": "Set to true to auto-fit on attach.",
+          "type": "boolean"
+        },
+        {
+          "name": "fitPositionTarget",
+          "attribute": "fitPositionTarget",
+          "description": "When set it fits the positioning target width.",
+          "type": "boolean"
+        }
+      ],
+      "events": [
+        {
+          "name": "suggestionsopenedchange"
+        },
+        {
+          "name": "input"
+        },
+        {
+          "name": "arcnavigateexternal"
+        },
+        {
+          "name": "opened",
+          "description": "Dispatched after the element is rendered opened"
+        },
+        {
+          "name": "closed",
+          "description": "Dispatched after the element is rendered closed"
+        },
+        {
+          "name": "cancel",
+          "description": "Dispatched when element is about to be closed. Cancelling the event stops the closing."
+        }
+      ]
+    }
+  ]
+}

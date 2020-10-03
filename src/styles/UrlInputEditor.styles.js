@@ -8,7 +8,7 @@ export default css`
 
 .container {
   position: relative;
-  border: 1px #e5e5e5 solid;
+  border: 1px var(--url-input-editor-border-color, #e5e5e5) solid;
   border-radius: 20px;
   padding: 0 20px;
   box-sizing: content-box;
@@ -99,7 +99,7 @@ anypoint-item > div {
 }
 
 url-detailed-editor {
-  background-color: #fff;
+  background-color: inherit;
 }
 
 .params-editor {

@@ -71,7 +71,7 @@ class SampleElement extends LitElement {
 customElements.define('sample-element', SampleElement);
 ```
 
-### url-editor
+### url-input-editor
 
 A HTTP request URL editor for a HTTP request editor.
 
