@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": ["es2017", "dom"],
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": false,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "esModuleInterop": true,
+    "plugins": []
+  },
+  "include": [
+    "**/*.js",
+    "node_modules/@open-wc/**/*.js", "src/internals.d.ts"
+  ],
+  "exclude": ["node_modules/!(@open-wc)"]
+}
