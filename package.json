@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/arc-url",
   "description": "A module with logic an UI regions to support URL processing in Advanced REST Client application. It contains a logic to safely parse url with variables, build a URL input, or to enter any arbitrary URL with autosuggestions.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
