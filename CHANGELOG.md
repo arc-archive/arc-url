@@ -122,3 +122,22 @@
  [352c678](https://github.com/advanced-rest-client/url-parser/commit/352c6787f7690111a9b78763035af23c14af678f) by Pawel Psztyc
 
 
+<a name="0.1.1"></a>
+## 0.1.1 (2020-10-04)
+
+### Build
+
+* bumpoing version [370c6f6](https://github.com/advanced-rest-client/arc-url/commit/370c6f6601bb37ca5046e50bcadc4002cf3a85a8) by Pawel
+
+
+### Update
+
+* finishing first version of the component [74d5482](https://github.com/advanced-rest-client/arc-url/commit/74d54826437f31fcf37af2dd205de11ca7f7e5a4) by Pawel
+
+
+### Testing
+
+* removing Safari from tests [a9e55f1](https://github.com/advanced-rest-client/arc-url/commit/a9e55f1c8458d260bb15a0cad90683b0fcc4c8d0) by Pawel
+* updated Travis configuration to connect to Sauce Labs [8213a08](https://github.com/advanced-rest-client/arc-url/commit/8213a0839ebc55e95f3c4e51d97a7b8cedea0b87) by Pawel
+
+
