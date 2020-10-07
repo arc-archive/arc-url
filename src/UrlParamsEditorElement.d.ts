@@ -1,6 +1,6 @@
 import {LitElement, TemplateResult, CSSResult} from 'lit-element';
 import {ValidatableMixin} from '@anypoint-web-components/validatable-mixin';
-import {UrlParser} from '@advanced-rest-client/url-parser';
+import {UrlParser} from '../';
 import { ArcOverlayMixin } from '@advanced-rest-client/arc-overlay-mixin';
 import { ArcResizableMixin } from '@advanced-rest-client/arc-resizable-mixin';
 import {

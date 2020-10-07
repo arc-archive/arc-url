@@ -36,12 +36,12 @@ describe('UrlInputEditorElement', () => {
   async function detailsFixture() {
     return fixture(html`<url-input-editor detailsopened></url-input-editor>`);
   }
-  /**
-   * @return {Promise<UrlInputEditorElement>}
-   */
-  async function valueFixture(value) {
-    return fixture(html`<url-input-editor .value="${value}"></url-input-editor>`);
-  }
+  // /**
+  //  * @return {Promise<UrlInputEditorElement>}
+  //  */
+  // async function valueFixture(value) {
+  //   return fixture(html`<url-input-editor .value="${value}"></url-input-editor>`);
+  // }
 
   describe('Basic tests', () => {
     let element = /** @type UrlInputEditorElement */ (null);

@@ -502,6 +502,11 @@
           "type": "string"
         },
         {
+          "name": "purpose",
+          "description": "A value to be set in the detail object of the main action custom event.\nThe editor can server different purposes. Re-set the purpose to inform\nthe application about purpose of the event.",
+          "type": "string | undefined"
+        },
+        {
           "name": "opened",
           "description": "True if the overlay is currently displayed.",
           "type": "boolean"
@@ -605,6 +610,7 @@
         },
         {
           "name": "purpose",
+          "attribute": "purpose",
           "description": "A value to be set in the detail object of the main action custom event.\nThe editor can server different purposes. Re-set the purpose to inform\nthe application about purpose of the event.",
           "type": "string | undefined"
         },

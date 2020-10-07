@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/arc-url",
   "description": "A module with logic an UI regions to support URL processing in Advanced REST Client application. It contains a logic to safely parse url with variables, build a URL input, or to enter any arbitrary URL with autosuggestions.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
@@ -25,9 +25,9 @@
     "email": "arc@mulesoft.com"
   },
   "dependencies": {
-    "@advanced-rest-client/arc-events": "^0.1.7",
+    "@advanced-rest-client/arc-events": "^0.2.0",
     "@advanced-rest-client/arc-icons": "^3.1.2",
-    "@advanced-rest-client/arc-models": "^4.1.12",
+    "@advanced-rest-client/arc-models": "^4.2.0",
     "@advanced-rest-client/arc-overlay-mixin": "^1.1.6",
     "@advanced-rest-client/arc-resizable-mixin": "^1.1.2",
     "@advanced-rest-client/events-target-mixin": "^3.2.3",
@@ -54,7 +54,7 @@
     "eslint-config-prettier": "^6.12.0",
     "husky": "^4.3.0",
     "lint-staged": "^10.4.0",
-    "sinon": "^9.1.0",
+    "sinon": "^9.2.0",
     "typescript": "^4.0.3"
   },
   "scripts": {

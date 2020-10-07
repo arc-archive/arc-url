@@ -1,7 +1,7 @@
 import {LitElement, TemplateResult, CSSResult} from 'lit-element';
 import {ValidatableMixin} from '@anypoint-web-components/validatable-mixin/validatable-mixin.js';
 import {EventsTargetMixin} from '@advanced-rest-client/events-target-mixin/events-target-mixin.js';
-import {UrlParser} from '@advanced-rest-client/url-parser/url-parser.js';
+import {UrlParser} from '../';
 import { AnypointAutocomplete } from '@anypoint-web-components/anypoint-autocomplete';
 import { 
   autocompleteRef, 

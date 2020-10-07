@@ -12,7 +12,7 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { LitElement, TemplateResult, CSSResult } from 'lit-element';
-import { ArcOverlayMixin } from '@advanced-rest-client/arc-overlay-mixin/arc-overlay-mixin.js';
+import { ArcOverlayMixin } from '@advanced-rest-client/arc-overlay-mixin';
 import { AnypointInput } from '@anypoint-web-components/anypoint-input';
 import { AnypointAutocomplete } from '@anypoint-web-components/anypoint-autocomplete';
 
@@ -67,6 +67,7 @@ export class WebUrlInputElement {
    * A value to be set in the detail object of the main action custom event.
    * The editor can server different purposes. Re-set the purpose to inform
    * the application about purpose of the event.
+   * @attribute
    */
   purpose?: string;
   /**
