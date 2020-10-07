@@ -141,3 +141,24 @@
 * updated Travis configuration to connect to Sauce Labs [8213a08](https://github.com/advanced-rest-client/arc-url/commit/8213a0839ebc55e95f3c4e51d97a7b8cedea0b87) by Pawel
 
 
+<a name="0.1.2"></a>
+## 0.1.2 (2020-10-07)
+
+### Build
+
+* bumpoing version [370c6f6](https://github.com/advanced-rest-client/arc-url/commit/370c6f6601bb37ca5046e50bcadc4002cf3a85a8) by Pawel
+
+
+### Update
+
+* updating ARC events [0e7329b](https://github.com/advanced-rest-client/arc-url/commit/0e7329b40594b46f562f7528deaafabc76f7a108) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [5f42145](https://github.com/advanced-rest-client/arc-url/commit/5f42145c0ef24e62dadf9ecf594537e067f02744) by Ci agent
+* finishing first version of the component [74d5482](https://github.com/advanced-rest-client/arc-url/commit/74d54826437f31fcf37af2dd205de11ca7f7e5a4) by Pawel
+
+
+### Testing
+
+* removing Safari from tests [a9e55f1](https://github.com/advanced-rest-client/arc-url/commit/a9e55f1c8458d260bb15a0cad90683b0fcc4c8d0) by Pawel
+* updated Travis configuration to connect to Sauce Labs [8213a08](https://github.com/advanced-rest-client/arc-url/commit/8213a0839ebc55e95f3c4e51d97a7b8cedea0b87) by Pawel
+
+
