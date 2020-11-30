@@ -162,3 +162,18 @@
 * updated Travis configuration to connect to Sauce Labs [8213a08](https://github.com/advanced-rest-client/arc-url/commit/8213a0839ebc55e95f3c4e51d97a7b8cedea0b87) by Pawel
 
 
+<a name="0.1.3"></a>
+## [0.1.3](https://github.com/advanced-rest-client/arc-url/compare/0.1.1...0.1.3) (2020-11-30)
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [7e4894c](https://github.com/advanced-rest-client/arc-url/commit/7e4894c0531e6e43e64711bdf9e2c1ffe9a6ae8a) by Ci agent
+* updating ARC events [0e7329b](https://github.com/advanced-rest-client/arc-url/commit/0e7329b40594b46f562f7528deaafabc76f7a108) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [5f42145](https://github.com/advanced-rest-client/arc-url/commit/5f42145c0ef24e62dadf9ecf594537e067f02744) by Ci agent
+
+
+### Bug Fixes
+
+* fixing issue with autocomplete border rendering [18f5eea](https://github.com/advanced-rest-client/arc-url/commit/18f5eeaf297cb9b2eb0b83bbe37ff3dc0a693fc2) by Pawel Psztyc
+
+
