@@ -33,7 +33,7 @@ class ComponentPage extends DemoPage {
     await this.generator.insertUrlHistoryData({
       size: 100,
     });
-    ImportEvents.dataimported(document.body);
+    ImportEvents.dataImported(document.body);
   }
 
   async deleteData() {

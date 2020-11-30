@@ -52,8 +52,15 @@ anypoint-autocomplete anypoint-listbox {
 }
 
 anypoint-autocomplete anypoint-listbox {
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+  border-radius: 0 0 8px 8px;
+  border: 1px var(--url-input-editor-border-color, #e5e5e5) solid;
+  border-top: none;
+}
+
+.container.overlay.autocomplete {
+  border-radius: 8px 8px 0 0;
+  border: 1px var(--url-input-editor-border-color, #e5e5e5) solid;
+  border-bottom: none;
 }
 
 .input-wrapper {

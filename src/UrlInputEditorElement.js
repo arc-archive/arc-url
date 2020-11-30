@@ -464,10 +464,12 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
   render() {
     const focused = this[focusedValue];
     const overlay = this[overlayOpenedValue];
+    const acOpened = this[autocompleteOpened];
     const classes = {
       container: true,
       focused,
       overlay,
+      autocomplete: acOpened,
     };
     return html`
     ${this[shadowTemplate]()}

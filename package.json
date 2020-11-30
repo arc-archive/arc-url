@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/arc-url",
   "description": "A module with logic an UI regions to support URL processing in Advanced REST Client application. It contains a logic to safely parse url with variables, build a URL input, or to enter any arbitrary URL with autosuggestions.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
@@ -25,16 +25,16 @@
     "email": "arc@mulesoft.com"
   },
   "dependencies": {
-    "@advanced-rest-client/arc-events": "^0.2.0",
+    "@advanced-rest-client/arc-events": "^0.2.6",
     "@advanced-rest-client/arc-icons": "^3.1.2",
-    "@advanced-rest-client/arc-models": "^4.2.0",
-    "@advanced-rest-client/arc-overlay-mixin": "^1.1.6",
-    "@advanced-rest-client/arc-resizable-mixin": "^1.1.2",
+    "@advanced-rest-client/arc-models": "^4.2.6",
+    "@advanced-rest-client/arc-overlay-mixin": "^1.1.7",
+    "@advanced-rest-client/arc-resizable-mixin": "^1.2.0",
     "@advanced-rest-client/events-target-mixin": "^3.2.3",
     "@anypoint-web-components/anypoint-autocomplete": "^0.2.7",
     "@anypoint-web-components/anypoint-button": "^1.1.1",
     "@anypoint-web-components/anypoint-collapse": "^0.1.0",
-    "@anypoint-web-components/anypoint-input": "^0.2.21",
+    "@anypoint-web-components/anypoint-input": "^0.2.23",
     "@anypoint-web-components/anypoint-switch": "^0.1.4",
     "@anypoint-web-components/validatable-mixin": "^1.1.3",
     "@polymer/iron-form": "^3.0.1",
@@ -42,31 +42,31 @@
     "lit-html": "^1.3.0"
   },
   "devDependencies": {
-    "@advanced-rest-client/arc-data-generator": "^3.1.9",
+    "@advanced-rest-client/arc-data-generator": "^3.1.12",
     "@advanced-rest-client/arc-demo-helper": "^2.2.0",
-    "@advanced-rest-client/testing-karma-sl": "^1.4.2",
-    "@open-wc/eslint-config": "^3.0.0",
-    "@open-wc/testing": "^2.5.29",
-    "@open-wc/testing-karma": "^4.0.8",
+    "@open-wc/eslint-config": "^4.0.1",
+    "@open-wc/testing": "^2.5.32",
+    "@web/dev-server": "^0.0.25",
+    "@web/test-runner": "^0.9.12",
+    "@web/test-runner-playwright": "^0.6.6",
     "@polymer/iron-test-helpers": "^3.0.1",
     "deepmerge": "^4.2.2",
-    "eslint": "^7.10.0",
-    "eslint-config-prettier": "^6.12.0",
+    "eslint": "^7.14.0",
+    "eslint-config-prettier": "^6.15.0",
     "husky": "^4.3.0",
-    "lint-staged": "^10.4.0",
-    "sinon": "^9.2.0",
-    "typescript": "^4.0.3"
+    "lint-staged": "^10.5.2",
+    "sinon": "^9.2.1",
+    "typescript": "^4.1.2"
   },
   "scripts": {
-    "start": "es-dev-server --app-index demo/index.html --node-resolve --open --watch --preserve-symlinks --dedupe",
+    "start": "web-dev-server --app-index demo/index.html --node-resolve --open --watch --root-dir .",
     "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
     "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
     "lint:types": "tsc",
     "lint": "npm run lint:eslint",
     "format": "npm run format:eslint",
-    "test": "karma start --coverage",
-    "test:watch": "karma start --auto-watch=true --single-run=false",
-    "test:sl": "karma start karma.sl.config.js --compatibility auto --coverage",
+    "test": "web-test-runner test/**/*.test.js --coverage --node-resolve --playwright --browsers chromium firefox webkit",
+    "test:watch": "web-test-runner test/**/*.test.js --node-resolve --watch --playwright --browsers chromium",
     "gen:wc": "wca analyze \"*.js\" --outFile custom-elements.json"
   },
   "eslintConfig": {
@@ -77,22 +77,17 @@
     "overrides": [
       {
         "files": [
-          "**/demo/**/*.js",
+          "demo/**/*.js",
+          "test/**/*.js",
           "**/demo/**/*.html"
         ],
         "rules": {
           "no-console": "off",
           "no-unused-expressions": "off",
+          "no-plusplus": "off",
+          "no-param-reassing": "off",
           "class-methods-use-this": "off",
           "import/no-extraneous-dependencies": "off"
-        }
-      },
-      {
-        "files": [
-          "**/*.js"
-        ],
-        "rules": {
-          "class-methods-use-this": "off"
         }
       }
     ]

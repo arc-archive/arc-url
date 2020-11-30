@@ -378,7 +378,7 @@ describe('UrlParamsEditorElement', () => {
 
     it('notifies resize', async () => {
       const spy = sinon.spy();
-      element.addEventListener('iron-resize', spy);
+      element.addEventListener('resize', spy);
       element[addParamHandler]();
       await element.updateComplete;
       await aTimeout(0);
