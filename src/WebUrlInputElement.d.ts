@@ -30,6 +30,10 @@ import {
   enterHandler,
   inputHandler,
   valueValue,
+  transitionEndHandler,
+  autocompleteOpenedValue,
+  autocompleteClosedHandler,
+  autocompleteOpenedHandler,
 } from './internals.js';
 
 /**
@@ -79,11 +83,13 @@ export class WebUrlInputElement {
    */
   outlined: boolean;
 
-  readonly [autocompleteRef]: AnypointAutocomplete;
+  get [autocompleteRef](): AnypointAutocomplete;
   /**
    * true when the confirm button is rendered disabled
    */
-  readonly confirmDisabled: boolean;
+  get confirmDisabled(): boolean;
+
+  [autocompleteOpenedValue]: boolean;
 
   constructor();
 
@@ -104,6 +110,10 @@ export class WebUrlInputElement {
    * @param q User query from the input field
    */
   [readAutocomplete](q: string): Promise<void>;
+
+  [autocompleteOpenedHandler](e: Event): void;
+
+  [autocompleteClosedHandler](e: Event): void;
 
   /**
    * A handler for keyboard key down event bubbling through this element.
@@ -132,6 +142,11 @@ export class WebUrlInputElement {
    * Handler for `opened-changed` event dispatched from the autocomplete.
    */
   [suggestionsOpenedHandler](e: CustomEvent): void;
+
+  /**
+   * Controls open/close behavior when the transition animations ends
+   */
+  [transitionEndHandler](e: TransitionEvent): void;
 
   render(): TemplateResult;
   /**

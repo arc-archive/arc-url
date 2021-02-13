@@ -1,4 +1,7 @@
 export declare const autocompleteTarget: unique symbol;
+export declare const autocompleteOpenedHandler: unique symbol;
+export declare const autocompleteClosedHandler: unique symbol;
+export declare const autocompleteOpenedValue: unique symbol;
 export declare const inputTemplate: unique symbol;
 export declare const autocompleteTemplate: unique symbol;
 export declare const confirmButtonTemplate: unique symbol;

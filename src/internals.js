@@ -1,4 +1,7 @@
 export const autocompleteTarget = Symbol('autocompleteTarget');
+export const autocompleteOpenedHandler = Symbol('autocompleteOpenedHandler');
+export const autocompleteClosedHandler = Symbol('autocompleteClosedHandler');
+export const autocompleteOpenedValue = Symbol('autocompleteOpenedValue');
 export const inputTemplate = Symbol('inputTemplate');
 export const autocompleteTemplate = Symbol('autocompleteTemplate');
 export const confirmButtonTemplate = Symbol('confirmButtonTemplate');

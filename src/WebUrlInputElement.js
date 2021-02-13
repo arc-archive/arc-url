@@ -33,6 +33,9 @@ import {
   inputHandler,
   valueValue,
   transitionEndHandler,
+  autocompleteOpenedValue,
+  autocompleteClosedHandler,
+  autocompleteOpenedHandler,
 } from './internals.js';
 import styles from './styles/WebUrlInput.styles.js';
 import { cancelEvent } from './Utils.js';
@@ -40,6 +43,7 @@ import { cancelEvent } from './Utils.js';
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
 /** @typedef {import('@anypoint-web-components/anypoint-autocomplete').AnypointAutocomplete} AnypointAutocomplete */
 /** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('@anypoint-web-components/anypoint-dropdown').AnypointDropdown} AnypointDropdown */
 
 /**
  * An element to display a dialog to enter an URL with auto hints
@@ -130,6 +134,7 @@ export class WebUrlInputElement extends ArcOverlayMixin(LitElement) {
     this.compatibility = false;
     this.outlined = false;
     this.purpose = undefined;
+    this[autocompleteOpenedValue] = false;
   }
 
   connectedCallback() {
@@ -176,13 +181,33 @@ export class WebUrlInputElement extends ArcOverlayMixin(LitElement) {
    * @return {Promise<void>}
    */
   async [readAutocomplete](q) {
+    const ref = this[autocompleteRef];
     try {
       const result = await ArcModelEvents.UrlHistory.query(this, q);
       const suggestions = (result || []).map((item) => item.url);
-      this[autocompleteRef].source = suggestions;
+      ref.source = suggestions;
     } catch (e) {
-      this[autocompleteRef].source = [];
+      ref.source = [];
     }
+    await ref.updateComplete;
+    const dd = /** @type AnypointDropdown */ (ref.querySelector('anypoint-dropdown'));
+    dd.refit();
+  }
+
+  /**
+   * @param {Event} e 
+   */
+  [autocompleteOpenedHandler](e) {
+    cancelEvent(e);
+    this[autocompleteOpenedValue] = true;
+  }
+
+  /**
+   * @param {Event} e 
+   */
+  [autocompleteClosedHandler](e) {
+    cancelEvent(e);
+    this[autocompleteOpenedValue] = false;
   }
 
   /**
@@ -196,7 +221,7 @@ export class WebUrlInputElement extends ArcOverlayMixin(LitElement) {
     if (target.nodeName !== 'INPUT') {
       return;
     }
-    if (['Enter', 'NumpadEnter'].indexOf(e.code) !== -1) {
+    if (['Enter', 'NumpadEnter'].includes(e.code) && !this[autocompleteOpenedValue]) {
       this[enterHandler]();
     }
   }
@@ -307,18 +332,20 @@ export class WebUrlInputElement extends ArcOverlayMixin(LitElement) {
   [autocompleteTemplate]() {
     const { compatibility } = this;
     const target = this[autocompleteTarget];
+    const offset = compatibility ? 40 : 56;
     return html`
     <anypoint-autocomplete
       loader
       openOnfocus
+      .verticalOffset="${offset}"
       @query="${this[autocompleteQueryHandler]}"
       .target="${target}"
       ?compatibility="${compatibility}"
       @opened-changed="${this[suggestionsOpenedHandler]}"
-      @closed="${cancelEvent}"
+      @closed="${this[autocompleteClosedHandler]}"
       @overlay-closed="${cancelEvent}"
       @iron-overlay-closed="${cancelEvent}"
-      @opened="${cancelEvent}"
+      @opened="${this[autocompleteOpenedHandler]}"
       @overlay-opened="${cancelEvent}"
       @iron-overlay-opened="${cancelEvent}"
     ></anypoint-autocomplete>
