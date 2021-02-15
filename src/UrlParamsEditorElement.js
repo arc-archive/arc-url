@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /**
 @license
 Copyright 2018 The Advanced REST client authors <arc@mulesoft.com>
@@ -125,6 +126,10 @@ export class UrlParamsEditorElement extends ArcResizableMixin(ArcOverlayMixin(Va
     this.compatibility = false;
     this.outlined = false;
     this.readOnly = false;
+    /** 
+     * @type {QueryParameter[]}
+     */
+    this.queryParameters = undefined;
   }
 
   [notifyChange]() {
@@ -264,11 +269,10 @@ export class UrlParamsEditorElement extends ArcResizableMixin(ArcOverlayMixin(Va
     const items = this.queryParameters || [];
     items[items.length] = obj;
     this.queryParameters = /** @type QueryParameter[] */ ([...items]);
-    await this.updateComplete;
-    setTimeout(() => {
-      this.notifyResize();
-      this.focusLastName();
-    });
+    await this.requestUpdate();
+    this.refit();
+    this.notifyResize();
+    this.focusLastName();
   }
 
   /**
@@ -282,10 +286,9 @@ export class UrlParamsEditorElement extends ArcResizableMixin(ArcOverlayMixin(Va
     items.splice(index, 1);
     this.queryParameters = [...items];
     this[queryModelChanged]();
-    await this.updateComplete;
-    setTimeout(() => {
-      this.notifyResize();
-    });
+    await this.requestUpdate();
+    this.refit();
+    this.notifyResize();
   }
 
   /**

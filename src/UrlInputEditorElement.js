@@ -436,6 +436,9 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
     this[setShadowHeight](rect.height);
   }
 
+  /**
+   * @param {Event} e 
+   */
   [paramsClosedHandler](e) {
     cancelEvent(e);
     this[overlayOpenedValue] = false;
@@ -445,13 +448,14 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
     this.requestUpdate();
   }
 
+  /**
+   * @param {Event} e 
+   */
   async [paramsResizeHandler](e) {
     const node = /** @type UrlParamsEditorElement */ (e.target);
     // the overlay mixin uses "raf" to schedule a task to re-render the
     // overlay after a resize. The height computations has to be done
     // after the overlay is re-rendered.
-    await this.updateComplete;
-    await node.updateComplete;
     requestAnimationFrame(() => {
       const rect = node.getBoundingClientRect();
       if (!rect.height) {
@@ -596,7 +600,7 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
       @overlay-opened="${cancelEvent}"
       @iron-overlay-closed="${cancelEvent}"
       @iron-overlay-opened="${cancelEvent}"
-      @iron-resize="${this[paramsResizeHandler]}"
+      @resize="${this[paramsResizeHandler]}"
     ></url-params-editor>
     `;
   }
