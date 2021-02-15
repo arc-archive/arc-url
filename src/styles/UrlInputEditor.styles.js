@@ -38,7 +38,7 @@ export default css`
 }
 
 .container.overlay {
-  border-radius: 8px;
+  border-radius: 8px 8px 0px 0px;
   border-color: transparent;
 }
 
