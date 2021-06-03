@@ -1,8 +1,7 @@
 /* eslint-disable no-template-curly-in-string */
 import { fixture, html, assert, nextFrame, aTimeout } from '@open-wc/testing';
 import sinon from 'sinon';
-import { RequestEventTypes, RequestEvents, TelemetryEventTypes } from '@advanced-rest-client/arc-events';
-import { ArcModelEventTypes } from '@advanced-rest-client/arc-models';
+import { RequestEventTypes, RequestEvents, TelemetryEventTypes, ArcModelEventTypes } from '@advanced-rest-client/arc-events';
 import { UrlParser } from '../index.js';
 import '../url-input-editor.js';
 import {

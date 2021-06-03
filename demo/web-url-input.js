@@ -4,8 +4,7 @@ import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@advanced-rest-client/arc-models/url-history-model.js';
 import { DataGenerator } from '@advanced-rest-client/arc-data-generator';
-import { ImportEvents, ArcNavigationEventTypes } from '@advanced-rest-client/arc-events';
-import { ArcModelEvents } from '@advanced-rest-client/arc-models';
+import { ImportEvents, ArcNavigationEventTypes, ArcModelEvents } from '@advanced-rest-client/arc-events';
 import '../web-url-input.js';
 
 /** @typedef {import('@advanced-rest-client/arc-events').ARCExternalNavigationEvent} ARCExternalNavigationEvent */
@@ -30,7 +29,7 @@ class ComponentDemo extends DemoPage {
     await this.generator.insertUrlHistoryData({
       size: 100,
     });
-    ImportEvents.dataimported(document.body);
+    ImportEvents.dataImported(document.body);
   }
 
   async deleteData() {
@@ -77,7 +76,6 @@ class ComponentDemo extends DemoPage {
         </arc-interactive-demo>
         <web-url-input 
           .opened="${opened}" 
-          ?compatibility="${compatibility}"
           @closed="${this.closedHandler}"
           purpose="demo-page"
         ></web-url-input>

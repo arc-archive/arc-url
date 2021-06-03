@@ -2,8 +2,7 @@ import { fixture, html, assert, nextFrame, aTimeout, oneEvent } from '@open-wc/t
 import sinon from 'sinon';
 import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
 import '@advanced-rest-client/arc-models/url-history-model.js';
-import { ArcNavigationEventTypes } from '@advanced-rest-client/arc-events';
-import { ArcModelEventTypes } from '@advanced-rest-client/arc-models';
+import { ArcNavigationEventTypes, ArcModelEventTypes } from '@advanced-rest-client/arc-events';
 import '../web-url-input.js';
 import {
   autocompleteTarget,

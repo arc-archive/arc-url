@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /** @typedef {import('./UrlValueParser').UrlValueParserOptions} UrlValueParserOptions */
 
 /**

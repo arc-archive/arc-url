@@ -3,9 +3,11 @@ import { DemoPage } from '@advanced-rest-client/arc-demo-helper';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@advanced-rest-client/arc-models/url-history-model.js';
 import { DataGenerator } from '@advanced-rest-client/arc-data-generator';
-import { ImportEvents } from '@advanced-rest-client/arc-events';
-import { ArcModelEvents } from '@advanced-rest-client/arc-models';
+import { ImportEvents, ArcModelEvents, RequestEventTypes } from '@advanced-rest-client/arc-events';
 import '../url-input-editor.js';
+
+/** @typedef {import('../').UrlInputEditorElement} UrlInputEditorElement */
+
 /* eslint-disable max-len */
 class ComponentPage extends DemoPage {
   constructor() {
@@ -24,9 +26,10 @@ class ComponentPage extends DemoPage {
     // this.value = window.location.href;
 
     this._valueHandler = this._valueHandler.bind(this);
-
     this.generateData = this.generateData.bind(this);
     this.deleteData = this.deleteData.bind(this);
+
+    window.addEventListener(RequestEventTypes.send, this._sendHandler.bind(this));
   }
 
   async generateData() {
@@ -48,14 +51,24 @@ class ComponentPage extends DemoPage {
     this._updateCompatibility();
   }
 
+  /**
+   * @param {Event} e 
+   */
   _valueHandler(e) {
-    this.value = e.detail.value;
-    console.log(this.value);
+    const editor = /** @type UrlInputEditorElement */ (e.target)
+    const { value } = editor;
+    console.log(value);
+    this.value = value;
   }
 
+  /**
+   * @param {Event} e 
+   */
   async _sendHandler(e) {
-    console.log('Storing URL in the history', e.target.value);
-    await ArcModelEvents.UrlHistory.insert(document.body, e.target.value);
+    const editor = /** @type UrlInputEditorElement */ (e.target)
+    const { value } = editor;
+    console.log('Storing URL in the history', value);
+    await ArcModelEvents.UrlHistory.insert(document.body, value);
   }
 
   _demoTemplate() {
@@ -83,8 +96,7 @@ class ComponentPage extends DemoPage {
             ?compatibility="${compatibility}"
             ?outlined="${outlined}"
             .value="${value}"
-            @value-changed="${this._valueHandler}"
-            @send-request="${this._sendHandler}"
+            @change="${this._valueHandler}"
             slot="content"
           ></url-input-editor>
         </arc-interactive-demo>

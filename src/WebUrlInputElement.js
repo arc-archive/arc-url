@@ -16,8 +16,7 @@ import { ArcOverlayMixin } from '@advanced-rest-client/arc-overlay-mixin';
 import '@anypoint-web-components/anypoint-input/anypoint-input.js';
 import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@anypoint-web-components/anypoint-autocomplete/anypoint-autocomplete.js';
-import { ArcModelEvents } from '@advanced-rest-client/arc-models';
-import { ArcNavigationEvents } from '@advanced-rest-client/arc-events';
+import { ArcNavigationEvents, ArcModelEvents } from '@advanced-rest-client/arc-events';
 import {
   autocompleteTarget,
   inputTemplate,

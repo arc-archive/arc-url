@@ -22,8 +22,7 @@ import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@anypoint-web-components/anypoint-input/anypoint-input.js';
 import '@anypoint-web-components/anypoint-autocomplete/anypoint-autocomplete.js';
 import '@anypoint-web-components/anypoint-collapse/anypoint-collapse.js';
-import { TelemetryEvents, RequestEvents, RequestEventTypes } from '@advanced-rest-client/arc-events';
-import { ArcModelEvents } from '@advanced-rest-client/arc-models';
+import { TelemetryEvents, RequestEvents, RequestEventTypes, ArcModelEvents } from '@advanced-rest-client/arc-events';
 import classStyles from './styles/UrlInputEditor.styles.js';
 import { UrlParser } from './UrlParser.js';
 import '../url-params-editor.js';
@@ -131,7 +130,7 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
   }
 
   /**
-   * @returns {string} An icon name for the main input suffix icon
+   * @returns {any} An icon name for the main input suffix icon
    */
   get inputIcon() {
     const { detailsOpened } = this;
