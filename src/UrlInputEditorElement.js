@@ -1,3 +1,4 @@
+/* eslint-disable lit-a11y/click-events-have-key-events */
 /**
 @license
 Copyright 2018 The Advanced REST client authors <arc@mulesoft.com>
@@ -20,19 +21,21 @@ import '@advanced-rest-client/arc-icons/arc-icon.js';
 import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
 import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@anypoint-web-components/anypoint-input/anypoint-input.js';
-import '@anypoint-web-components/anypoint-autocomplete/anypoint-autocomplete.js';
+import '@anypoint-web-components/anypoint-dropdown/anypoint-dropdown.js';
+import '@anypoint-web-components/anypoint-item/anypoint-item.js';
+import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
+import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
 import '@anypoint-web-components/anypoint-collapse/anypoint-collapse.js';
-import { TelemetryEvents, RequestEvents, RequestEventTypes, ArcModelEvents } from '@advanced-rest-client/arc-events';
+import { TelemetryEvents, RequestEvents, RequestEventTypes, ArcModelEvents, ArcModelEventTypes } from '@advanced-rest-client/arc-events';
 import classStyles from './styles/UrlInputEditor.styles.js';
 import { UrlParser } from './UrlParser.js';
 import '../url-params-editor.js';
-import { encodeQueryString, decodeQueryString, cancelEvent } from './Utils.js';
-import { 
-  autocompleteRef, 
+import { encodeQueryString, decodeQueryString, cancelEvent, sortUrls } from './Utils.js';
+import {
   readAutocomplete,
   focusedValue,
   overlayOpenedValue,
-  suggestionsOpenedHandler,
+  toggleSuggestions,
   shadowContainerOpened,
   shadowContainerHeight,
   paramsEditorTemplate,
@@ -51,11 +54,24 @@ import {
   decodeEncode,
   dispatchAnalyticsEvent,
   processUrlParams,
-  autocompleteQuery,
   autocompleteResizeHandler,
   setShadowHeight,
   mainFocusBlurHandler,
   autocompleteOpened,
+  suggestionsValue,
+  renderedSuggestions,
+  suggestionsListTemplate,
+  suggestionItemTemplate,
+  previousValue,
+  filterSuggestions,
+  suggestionHandler,
+  setSuggestionsWidth,
+  autocompleteClosedHandler,
+  suggestionsList,
+  removeSuggestionHandler,
+  clearSuggestionsHandler,
+  urlHistoryDeletedHandler,
+  urlHistoryDestroyedHandler,
 } from './internals.js';
 
 /* eslint-disable no-param-reassign */
@@ -63,10 +79,13 @@ import {
 /* eslint-disable no-continue */
 /* eslint-disable class-methods-use-this */
 
-/** @typedef {import('@anypoint-web-components/anypoint-autocomplete').AnypointAutocomplete} AnypointAutocomplete */
-/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
-/** @typedef {import('@advanced-rest-client/arc-events').RequestChangeEvent} RequestChangeEvent */
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */
+/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
+/** @typedef {import('@advanced-rest-client/arc-events').RequestChangeEvent} RequestChangeEvent */
+/** @typedef {import('@advanced-rest-client/arc-events').ARCHistoryUrlDeletedEvent} ARCHistoryUrlDeletedEvent */
+/** @typedef {import('@advanced-rest-client/arc-events').ARCModelStateDeleteEvent} ARCModelStateDeleteEvent */
+/** @typedef {import('@advanced-rest-client/arc-types').UrlHistory.ARCUrlHistory} ARCUrlHistory */
 /** @typedef {import('./UrlParamsEditorElement').UrlParamsEditorElement} UrlParamsEditorElement */
 
 /**
@@ -123,13 +142,6 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
   }
 
   /**
-   * @return {AnypointAutocomplete}
-   */
-  get [autocompleteRef]() {
-    return this.shadowRoot.querySelector('anypoint-autocomplete');
-  }
-
-  /**
    * @returns {any} An icon name for the main input suffix icon
    */
   get inputIcon() {
@@ -145,10 +157,21 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
     return detailsOpened ? 'Close parameters editor' : 'Open parameters editor';
   }
 
+  /**
+   * @returns {AnypointListbox}
+   */
+  get [suggestionsList]() {
+    const node = /** @type AnypointListbox */ (this.shadowRoot.querySelector('.url-autocomplete anypoint-listbox'));
+    return node;
+  }
+
   constructor() {
     super();
     this[extValueChangeHandler] = this[extValueChangeHandler].bind(this);
     this[keyDownHandler] = this[keyDownHandler].bind(this);
+    this[urlHistoryDeletedHandler] = this[urlHistoryDeletedHandler].bind(this);
+    this[urlHistoryDestroyedHandler] = this[urlHistoryDestroyedHandler].bind(this);
+
     this.defaultProtocol = 'http';
     this.value = 'http://';
 
@@ -156,6 +179,9 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
     this.readOnly = false;
     this.outlined = false;
     this[autocompleteOpened] = false;
+
+    this[suggestionsValue] = /** @type ARCUrlHistory[] */ (undefined);
+    this[renderedSuggestions] = /** @type ARCUrlHistory[] */ (undefined);
   }
 
   /**
@@ -163,6 +189,8 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
    */
   _attachListeners(node) {
     node.addEventListener(RequestEventTypes.State.urlChange, this[extValueChangeHandler]);
+    node.addEventListener(ArcModelEventTypes.UrlHistory.State.delete, this[urlHistoryDeletedHandler]);
+    node.addEventListener(ArcModelEventTypes.destroyed, this[urlHistoryDestroyedHandler]);
     this.addEventListener('keydown', this[keyDownHandler]);
   }
 
@@ -171,6 +199,8 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
    */
   _detachListeners(node) {
     node.removeEventListener(RequestEventTypes.State.urlChange, this[extValueChangeHandler]);
+    node.removeEventListener(ArcModelEventTypes.UrlHistory.State.delete, this[urlHistoryDeletedHandler]);
+    node.removeEventListener(ArcModelEventTypes.destroyed, this[urlHistoryDestroyedHandler]);
     this.removeEventListener('keydown', this[keyDownHandler]);
   }
 
@@ -302,30 +332,15 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
   }
 
   /**
-   * Handler for autocomplete element query event.
-   * Dispatches `url-history-query` to query history model for data.
-   * @param {CustomEvent} e
-   * @return {Promise<void>}
-   */
-  async [autocompleteQuery](e) {
-    e.preventDefault();
-    e.stopPropagation();
-    const { value } = e.detail;
-    await this[readAutocomplete](value);
-  }
-
-  /**
    * Queries the data model for history data and sets the suggestions
    * @param {string} q User query from the input field
    * @return {Promise<void>}
    */
   async [readAutocomplete](q) {
     try {
-      const result = await ArcModelEvents.UrlHistory.query(this, q);
-      const suggestions = (result || []).map((item) => item.url);
-      this[autocompleteRef].source = suggestions;
+      this[suggestionsValue] = /** @type ARCUrlHistory[] */ (await ArcModelEvents.UrlHistory.query(this, q));
     } catch (e) {
-      this[autocompleteRef].source = [];
+      this[suggestionsValue] = /** @type ARCUrlHistory[] */ (undefined);
     }
   }
 
@@ -337,8 +352,28 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
     if (!target || target.nodeName !== 'INPUT') {
       return;
     }
-    if (['Enter', 'NumpadEnter'].includes(e.code)) {
+    if (!this[autocompleteOpened] && ['Enter', 'NumpadEnter'].includes(e.code)) {
       RequestEvents.send(this);
+    } else if (this[autocompleteOpened] && target.classList.contains('main-input')) {
+      const { code } = e;
+      if (code === 'ArrowUp') {
+        e.preventDefault();
+        this[suggestionsList].highlightPrevious();
+      } else if (code === 'ArrowDown') {
+        e.preventDefault();
+        this[suggestionsList].highlightNext();
+      } else if (['Enter', 'NumpadEnter'].includes(code)) {
+        e.preventDefault();
+        const node = this[suggestionsList];
+        const { highlightedItem } = node;
+        if (!highlightedItem) {
+          RequestEvents.send(this);
+          this[toggleSuggestions](false);
+        } else {
+          const index = node.indexOf(highlightedItem);
+          node.select(index);
+        }
+      }
     }
   }
 
@@ -363,8 +398,12 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
       return;
     }
     const node = /** @type HTMLInputElement */ (e.target);
+    this[previousValue] = this.value;
     this.value = node.value;
     this[notifyChange]();
+    if (node.classList.contains('main-input')) {
+      this.renderSuggestions();
+    }
   }
 
   /**
@@ -383,20 +422,69 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
   [mainFocusBlurHandler](e) {
     this[focusedValue] = e.type === 'focus';
     this.requestUpdate();
+    if (this[focusedValue] && !this[autocompleteOpened] && !this.detailsOpened) {
+      this.renderSuggestions();
+    }
   }
 
   /**
-   * @param {CustomEvent} e
+   * Triggers URL suggestions rendering.
+   * If there are suggestions to render this will enable the dropdown.
    */
-  [suggestionsOpenedHandler](e) {
-    const node = /** @type AnypointAutocomplete */ (e.target);
-    const { opened } = node;
+  async renderSuggestions() {
+    const { value='' } = this;
+    if (this[previousValue] && value.startsWith(this[previousValue])) {
+      this[filterSuggestions]();
+      return;
+    }
+    await this[readAutocomplete](value);
+    this[filterSuggestions](); 
+  }
+
+  /**
+   * Performs the query on the current suggestions and, if any, renders them.
+   */
+  async [filterSuggestions]() {
+    const items = this[suggestionsValue];
+    if (!Array.isArray(items) || !items.length) {
+      this[toggleSuggestions](false);
+      return;
+    }
+    const { value='' } = this;
+    const query = String(value).toLowerCase();
+    const rendered = items.filter(i => i.url.toLowerCase().includes(query));
+    if (!rendered.length) {
+      this[toggleSuggestions](false);
+      return;
+    }
+    if (rendered.length === 1 && rendered[0].url.toLowerCase() === query) {
+      this[toggleSuggestions](false);
+      return;
+    }
+    sortUrls(rendered, query);
+    this[renderedSuggestions] = rendered;
+    this[toggleSuggestions](true);
+    await this.requestUpdate();
+    const node = this.shadowRoot.querySelector('anypoint-dropdown');
+    node.refit();
+    node.notifyResize();
+    this[setSuggestionsWidth]();
+  }
+
+  /**
+   * @param {boolean} opened
+   */
+  [toggleSuggestions](opened) {
+    if (!opened) {
+      const element = /** @type HTMLInputElement */ (this.shadowRoot.querySelector('.main-input'));
+      element.focus();
+    }
     if (this[overlayOpenedValue] !== opened) {
       this[overlayOpenedValue] = opened;
       this[autocompleteOpened] = opened;
       this.requestUpdate();
     }
-    if (!opened) {
+    if (!opened && this[shadowContainerOpened]) {
       this[shadowContainerOpened] = false;
       this[shadowContainerHeight] = 0;
       this.requestUpdate();
@@ -407,12 +495,57 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
     if (!this[overlayOpenedValue]) {
       return;
     }
-    const ac = this[autocompleteRef].querySelector('anypoint-dropdown');
-    const rect = ac.getBoundingClientRect();
-    if (!rect.height) {
+    const node = this.shadowRoot.querySelector('.url-autocomplete');
+    const input = this.shadowRoot.querySelector('.input-wrapper');
+    const rect1 = node.getBoundingClientRect();
+    const rect2 = input.getBoundingClientRect();
+    const total = rect1.height + rect2.height;
+    if (!total) {
       return;
     }
-    this[setShadowHeight](rect.height);
+    this[setShadowHeight](total);
+  }
+
+  /**
+   * @param {Event} e 
+   */
+  [suggestionHandler](e) {
+    const list = /** @type AnypointListbox */ (e.target);
+    const { selected } = list;
+    list.selected = undefined;
+    if (selected === -1 || selected === null || selected === undefined) {
+      return;
+    }
+    const item = this[renderedSuggestions][selected];
+    if (!item) {
+      return;
+    }
+    this.value = item.url;
+    this[toggleSuggestions](false);
+    this[notifyChange]();
+  }
+
+  /**
+   * Sets the width of the suggestions container so it renders
+   * the URL suggestions in the full width of the input container.
+   */
+  [setSuggestionsWidth]() {
+    const rect = this.getBoundingClientRect();
+    const { width } = rect;
+    if (!width) {
+      return;
+    }
+    this[suggestionsList].style.width = `${width}px`;
+  }
+
+  /**
+   * A handler for the close event dispatched by the suggestions drop down.
+   * Closes the suggestions (sets the state) and cancels the event.
+   * @param {Event} e 
+   */
+  [autocompleteClosedHandler](e) {
+    cancelEvent(e);
+    this[toggleSuggestions](false);
   }
 
   /**
@@ -425,14 +558,26 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
     this.requestUpdate();
   }
 
+  /**
+   * @param {Event} e 
+   */
   [paramsOpenedHandler](e) {
     cancelEvent(e);
-    const rect = e.target.getBoundingClientRect();
-    if (!rect.height) {
-      return;
-    }
-    this[overlayOpenedValue] = true;
-    this[setShadowHeight](rect.height);
+    const node = /** @type UrlParamsEditorElement */ (e.target);
+    requestAnimationFrame(() => {
+      if (!this.detailsOpened) {
+        return;
+      }
+      const input = this.shadowRoot.querySelector('.input-wrapper');
+      const rect1 = node.getBoundingClientRect();
+      const rect2 = input.getBoundingClientRect();
+      const total = rect1.height + rect2.height;
+      if (!total) {
+        return;
+      }
+      this[overlayOpenedValue] = true;
+      this[setShadowHeight](total);
+    });
   }
 
   /**
@@ -451,17 +596,63 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
    * @param {Event} e 
    */
   async [paramsResizeHandler](e) {
-    const node = /** @type UrlParamsEditorElement */ (e.target);
-    // the overlay mixin uses "raf" to schedule a task to re-render the
-    // overlay after a resize. The height computations has to be done
-    // after the overlay is re-rendered.
-    requestAnimationFrame(() => {
-      const rect = node.getBoundingClientRect();
-      if (!rect.height) {
-        return;
-      }
-      this[setShadowHeight](rect.height);
-    });
+    if (this.detailsOpened) {
+      this[paramsOpenedHandler](e);
+    }
+  }
+
+  /**
+   * Removes the rendered suggestion from the store and from the currently rendered list.
+   * @param {Event} e 
+   */
+  async [removeSuggestionHandler](e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const node = /** @type HTMLElement */ (e.target);
+    const { id } = node.dataset;
+    if (!id) {
+      return;
+    }
+    await ArcModelEvents.UrlHistory.delete(this, id);
+  }
+
+  /**
+   * Removes all stored history URLs.
+   * @param {Event} e 
+   */
+  async [clearSuggestionsHandler](e) {
+    e.preventDefault();
+    e.stopPropagation();
+    await ArcModelEvents.destroy(this, ['url-history']);
+  }
+
+  /**
+   * @param {ARCHistoryUrlDeletedEvent} e 
+   */
+  [urlHistoryDeletedHandler](e) {
+    const { id } = e;
+    const items = /** @type ARCUrlHistory[] */ (this[suggestionsValue]);
+    if (!Array.isArray(items)) {
+      return;
+    }
+    const index = items.findIndex(i => i._id === id);
+    items.splice(index, 1);
+    if (this[autocompleteOpened]) {
+      this[filterSuggestions]();
+    }
+  }
+
+  /**
+   * @param {ARCModelStateDeleteEvent} e 
+   */
+  [urlHistoryDestroyedHandler](e) {
+    const { store } = e;
+    if (!['all', 'url-history'].includes(store)) {
+      return;
+    }
+    this[suggestionsValue] = /** @type ARCUrlHistory[] */ (undefined);
+    this[renderedSuggestions] = /** @type ARCUrlHistory[] */ (undefined);
+    this[toggleSuggestions](false);
   }
 
   render() {
@@ -523,27 +714,78 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
    */
   [urlAutocompleteTemplate]() {
     const { detailsOpened, compatibility } = this;
+    let opened = this[autocompleteOpened];
+    if (opened && detailsOpened) {
+      opened = false;
+    }
+    if (opened && (!this[renderedSuggestions] || !this[renderedSuggestions].length)) {
+      opened = false;
+    }
     return html`
-    <anypoint-autocomplete
+    <anypoint-dropdown
+      class="url-autocomplete"
       fitPositionTarget
-      horizontalAlign="left"
-      verticalAlign="top"
-      verticalOffset="44"
-      ignoreDropdownStyling
       .positionTarget="${this}"
-      target="mainInput"
-      ?disabled="${detailsOpened}"
-      ?compatibility="${compatibility}"
-      @query="${this[autocompleteQuery]}"
-      @opened-changed="${this[suggestionsOpenedHandler]}"
-      @closed="${cancelEvent}"
+      verticalAlign="top"
+      horizontalAlign="left"
+      verticalOffset="45"
+      .opened="${opened}"
+      noAutofocus
+      noCancelOnOutsideClick
+      @resize="${this[autocompleteResizeHandler]}"
       @overlay-opened="${cancelEvent}"
       @overlay-closed="${cancelEvent}"
       @iron-overlay-opened="${cancelEvent}"
       @iron-overlay-closed="${cancelEvent}"
-      @resize="${this[autocompleteResizeHandler]}"
-    ></anypoint-autocomplete>
+      @opened="${cancelEvent}"
+      @closed="${this[autocompleteClosedHandler]}"
+    >
+      <div class="suggestions-container" slot="dropdown-content">
+        <anypoint-listbox
+          aria-label="Use arrows and enter to select list item. Escape to close the list."
+          selectable="anypoint-item"
+          useAriaSelected
+          @select="${this[suggestionHandler]}"
+          ?compatibility="${compatibility}"
+        >
+          ${this[suggestionsListTemplate]()}
+        </anypoint-listbox>
+        <p class="clear-all-history">
+          <span class="clear-all-history-label" @click="${this[clearSuggestionsHandler]}">Clear all history</span>
+        </p>
+      </div>
+    </anypoint-dropdown>
     `;
+  }
+
+  /**
+   * @returns {TemplateResult[]|string} The template for the suggestions list.
+   */
+  [suggestionsListTemplate]() {
+    const items = this[renderedSuggestions];
+    if (!Array.isArray(items) || !items.length) {
+      return '';
+    }
+    return items.map(i => this[suggestionItemTemplate](i));
+  }
+
+  /**
+   * @param {ARCUrlHistory} item 
+   * @returns {TemplateResult} The template for an URL suggestion item.
+   */
+  [suggestionItemTemplate](item) {
+    const { url, _id } = item;
+    // this has a11y rule disabled because we are not planning to make this so complex to use
+    // where you can switch between the list context to a button context.
+    return html`
+    <anypoint-item ?compatibility="${this.compatibility}">
+      <div>${url}</div>
+      <span 
+        class="remove-suggestion" 
+        data-id="${_id}" 
+        @click="${this[removeSuggestionHandler]}"
+      >Remove</span>
+    </anypoint-item>`;
   }
 
   /**
@@ -554,7 +796,7 @@ export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(Li
     const opened = this[shadowContainerOpened];
     const styles = { height: `0px` };
     if (this[shadowContainerHeight] !== undefined) {
-      styles.height = `${this[shadowContainerHeight] + 40}px`
+      styles.height = `${this[shadowContainerHeight]}px`
     }
     const classes = {
       'content-shadow': true,

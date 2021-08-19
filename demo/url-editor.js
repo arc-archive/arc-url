@@ -2,7 +2,7 @@ import { html } from 'lit-html';
 import { DemoPage } from '@advanced-rest-client/arc-demo-helper';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@advanced-rest-client/arc-models/url-history-model.js';
-import { DataGenerator } from '@advanced-rest-client/arc-data-generator';
+import { ArcMock } from '@advanced-rest-client/arc-data-generator';
 import { ImportEvents, ArcModelEvents, RequestEventTypes } from '@advanced-rest-client/arc-events';
 import '../url-input-editor.js';
 
@@ -20,10 +20,11 @@ class ComponentPage extends DemoPage {
     this._componentName = 'url-input-editor';
     this.demoStates = ['Material', 'Outlined', 'Anypoint'];
     this.renderViewControls = true;
-    this.generator = new DataGenerator();
+    this.generator = new ArcMock();
 
     this.value = `${window.location.href}?token=eyJhbGRiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMTMXNDgzOTM3NzUyNjE2NTgwMDIiLCJzY29wZXMiOlsiYWxsIl0sImlhdCI6MTU0NzYwOTc4OSwiZXhwIjoxNTQ3Njk2MTg5LCJpc3MiOiJ1cm46YXJjLWNUIn0.iLHFXNtfJx-wDDMGFDN6ooM9IZQoD72ZcswbFV0x0Pk`;
     // this.value = window.location.href;
+    // this.value = 'http://';
 
     this._valueHandler = this._valueHandler.bind(this);
     this.generateData = this.generateData.bind(this);
@@ -33,14 +34,12 @@ class ComponentPage extends DemoPage {
   }
 
   async generateData() {
-    await this.generator.insertUrlHistoryData({
-      size: 100,
-    });
+    await this.generator.store.insertUrlHistory(100);
     ImportEvents.dataImported(document.body);
   }
 
   async deleteData() {
-    await this.generator.destroyUrlData();
+    await this.generator.store.destroyUrlHistory();
     ArcModelEvents.destroyed(document.body, 'all');
   }
 

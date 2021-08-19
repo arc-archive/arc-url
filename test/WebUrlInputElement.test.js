@@ -27,11 +27,14 @@ describe('WebUrlInputElement', () => {
     return elm.querySelector('web-url-input');
   }
 
+  /**
+   * @param {EventTarget} element 
+   */
   function mockSingleQuery(element) {
-    element.addEventListener(ArcModelEventTypes.UrlHistory.query, (e) => {
+    element.addEventListener(ArcModelEventTypes.UrlHistory.query, function f (e) {
       e.preventDefault();
       e.stopPropagation();
-      element.removeEventListener(ArcModelEventTypes.UrlHistory.query, e);
+      element.removeEventListener(ArcModelEventTypes.UrlHistory.query, f);
       // @ts-ignore
       e.detail.result = Promise.resolve([
         { url: 'url1', },

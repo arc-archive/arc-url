@@ -1,7 +1,8 @@
 /* eslint-disable no-template-curly-in-string */
 import { fixture, html, assert, nextFrame, aTimeout } from '@open-wc/testing';
 import sinon from 'sinon';
-import { RequestEventTypes, RequestEvents, TelemetryEventTypes, ArcModelEventTypes } from '@advanced-rest-client/arc-events';
+import { RequestEventTypes, RequestEvents, TelemetryEventTypes, ArcModelEventTypes, ArcModelEvents } from '@advanced-rest-client/arc-events';
+import { ArcMock } from '@advanced-rest-client/arc-data-generator';
 import { UrlParser } from '../index.js';
 import '../url-input-editor.js';
 import {
@@ -9,14 +10,23 @@ import {
   decodeEncode,
   processUrlParams,
   readAutocomplete,
-  autocompleteRef,
+  suggestionsValue,
+  previousValue,
+  renderedSuggestions,
+  filterSuggestions,
+  autocompleteOpened,
 } from '../src/internals.js';
+import { sortUrls } from '../src/Utils.js';
 
 /** @typedef {import('../index').UrlInputEditorElement} UrlInputEditorElement */
 /** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('@advanced-rest-client/arc-types').UrlHistory.ARCUrlHistory} ARCUrlHistory */
 /** @typedef {import('@anypoint-web-components/anypoint-button').AnypointButton} AnypointButton */
+/** @typedef {import('@anypoint-web-components/anypoint-dropdown').AnypointDropdown} AnypointDropdown */
+/** @typedef {import('@anypoint-web-components/anypoint-listbox').AnypointListbox} AnypointListbox */
 
 describe('UrlInputEditorElement', () => {
+  const generator = new ArcMock();
   /**
    * @return {Promise<UrlInputEditorElement>}
    */
@@ -452,11 +462,10 @@ describe('UrlInputEditorElement', () => {
     it('sets suggestions when available', async () => {
       element.addEventListener(ArcModelEventTypes.UrlHistory.query, (e) => {
         // @ts-ignore
-        e.detail.result = Promise.resolve([{ url: 'test' }]);
+        e.detail.result = Promise.resolve(generator.urls.urls(5));
       });
-      element[readAutocomplete](query);
-      await aTimeout(0);
-      assert.deepEqual(element[autocompleteRef].source, ['test']);
+      await element[readAutocomplete](query);
+      assert.lengthOf(element[suggestionsValue], 5);
     });
 
     it('sets empty when no results', async () => {
@@ -464,9 +473,8 @@ describe('UrlInputEditorElement', () => {
         // @ts-ignore
         e.detail.result = Promise.resolve();
       });
-      element[readAutocomplete](query);
-      await aTimeout(0);
-      assert.deepEqual(element[autocompleteRef].source, []);
+      await element[readAutocomplete](query);
+      assert.isUndefined(element[suggestionsValue]);
     });
 
     it('sets empty when error', async () => {
@@ -474,56 +482,8 @@ describe('UrlInputEditorElement', () => {
         // @ts-ignore
         e.detail.result = Promise.reject(new Error('test'));
       });
-      element[readAutocomplete](query);
-      await aTimeout(0);
-      assert.deepEqual(element[autocompleteRef].source, []);
-    });
-  });
-
-  describe('[autocompleteQuery]()', () => {
-    let element = /** @type UrlInputEditorElement */ (null);
-    beforeEach(async () => {
-      element = await basicFixture();
-    });
-
-    it('cancels the event', () => {
-      const e = new CustomEvent('query', {
-        cancelable: true,
-        bubbles: true,
-        composed: true,
-        detail: { value: 'test' }
-      });
-      const target = element.shadowRoot.querySelector('anypoint-autocomplete');
-      target.dispatchEvent(e);
-      assert.isTrue(e.defaultPrevented);
-    });
-
-    it('stops event propagation', () => {
-      const spy = sinon.spy();
-      element.addEventListener('query', spy);
-      const e = new CustomEvent('query', {
-        cancelable: true,
-        bubbles: true,
-        composed: true,
-        detail: { value: 'test' }
-      });
-      const target = element.shadowRoot.querySelector('anypoint-autocomplete');
-      target.dispatchEvent(e);
-      assert.isFalse(spy.called);
-    });
-
-    it('calls [readAutocomplete]', async () => {
-      const spy = sinon.spy(element, readAutocomplete);
-      const e = new CustomEvent('query', {
-        cancelable: true,
-        bubbles: true,
-        composed: true,
-        detail: { value: 'test' }
-      });
-      const target = element.shadowRoot.querySelector('anypoint-autocomplete');
-      target.dispatchEvent(e);
-      await nextFrame();
-      assert.isTrue(spy.called)
+      await element[readAutocomplete](query);
+      assert.isUndefined(element[suggestionsValue]);
     });
   });
 
@@ -617,6 +577,327 @@ describe('UrlInputEditorElement', () => {
       const element = await detailsFixture();
       await assert.isAccessible(element, {
         ignoredRules: ['color-contrast']
+      });
+    });
+  });
+
+  describe('URL suggestions', () => {
+    /**
+     * @param {EventTarget} target 
+     * @returns {ARCUrlHistory[]}
+     */
+    function mockSingleQuery(target) {
+      const items = generator.urls.urls(5);
+      target.addEventListener(ArcModelEventTypes.UrlHistory.query, function f(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        target.removeEventListener(ArcModelEventTypes.UrlHistory.query, f);
+        // @ts-ignore
+        e.detail.result = Promise.resolve(items);
+      });
+      return items;
+    }
+
+    describe('focusing main input', () => {
+      /** @type UrlInputEditorElement */
+      let element;
+      beforeEach(async () => {
+        element = await basicFixture();
+      });
+
+      it('sets suggestions when after main input focus', async () => {
+        const items = mockSingleQuery(element);
+        const input = /** @type HTMLInputElement */ (element.shadowRoot.querySelector('.main-input'));
+        input.focus();
+        await aTimeout(1);
+        assert.deepEqual(element[suggestionsValue], items);
+      });
+
+      it('renders the list of suggestions when not detailsOpened', async () => {
+        element.detailsOpened = true;
+        mockSingleQuery(element);
+        const input = /** @type HTMLInputElement */ (element.shadowRoot.querySelector('.main-input'));
+        input.focus();
+        await aTimeout(1);
+        assert.isUndefined(element[suggestionsValue]);
+      });
+    });
+
+    describe('suggestions rendering', () => {
+      /** @type UrlInputEditorElement */
+      let element;
+      /** @type ARCUrlHistory[] */
+      let items;
+      beforeEach(async () => {
+        element = await basicFixture();
+        element.value = 'http';
+        items = mockSingleQuery(element);
+        const input = /** @type HTMLInputElement */ (element.shadowRoot.querySelector('.main-input'));
+        input.focus();
+        await aTimeout(1);
+        await element.requestUpdate();
+      });
+
+      it('renders the list of suggestions', async () => {
+        const dropdown = /** @type AnypointDropdown */ (element.shadowRoot.querySelector('.url-autocomplete'));
+        assert.isTrue(dropdown.opened, 'the dropdown is rendered');
+        const listItems = dropdown.querySelectorAll('anypoint-item');
+        assert.lengthOf(listItems, items.length, 'has all items rendered');
+        const label = listItems[0].querySelector('div');
+        const sorted = [...items];
+        sortUrls(sorted, 'http');
+        assert.equal(label.textContent.trim(), sorted[0].url, 'item has rendered label');
+      });
+
+      it('renders the remove button', async () => {
+        const button = /** @type HTMLElement */ (element.shadowRoot.querySelector('.url-autocomplete anypoint-item .remove-suggestion'));
+        assert.ok(button, 'an item has the button');
+        const sorted = [...items];
+        sortUrls(sorted, 'http');
+        assert.equal(button.dataset.id, sorted[0]._id, 'the button has the data-id');
+      });
+
+      it('renders the remove all button', async () => {
+        const button = /** @type HTMLElement */ (element.shadowRoot.querySelector('.clear-all-history'));
+        assert.ok(button, 'an item has the button');
+      });
+
+      it('the list has the same width as the main input', async () => {
+        const rect = element.getBoundingClientRect();
+        const node = /** @type AnypointListbox */ (element.shadowRoot.querySelector('.url-autocomplete anypoint-listbox'));
+        assert.equal(node.style.width, `${rect.width}px`);
+      });
+    });
+
+    describe('suggestions filtering', () => {
+      /** @type UrlInputEditorElement */
+      let element;
+      /** @type ARCUrlHistory[] */
+      let items;
+      beforeEach(async () => {
+        element = await basicFixture();
+        element.value = 'http';
+        items = mockSingleQuery(element);
+        await element.renderSuggestions();
+      });
+
+      it('queries for suggestions, filters by the url, case insensitive', async () => {
+        items[0].url = 'https://abcdef'
+        element[previousValue] = undefined;
+        element.value = 'https://AbCd';
+        await element[filterSuggestions]();
+        assert.lengthOf(element[renderedSuggestions], 1);
+      });
+
+      it('ignores rendering when filtered is a one item with the same value as input', async () => {
+        element[previousValue] = undefined;
+        element.value = items[0].url.toUpperCase();
+        await element[filterSuggestions]();
+        assert.isFalse(element[autocompleteOpened], 'autocomplete is not rendered');
+      });
+
+      it('ignores rendering when filtered is empty', async () => {
+        element[previousValue] = undefined;
+        element.value = 'impossible value to generate';
+        await element[filterSuggestions]();
+        assert.isFalse(element[autocompleteOpened], 'autocomplete is not rendered');
+      });
+
+      it('reuses existing cached values when rendering suggestions', async () => {
+        const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
+        input.value = 'http';
+        input.dispatchEvent(new Event('input'));
+        input.value = 'http:';
+        const spy = sinon.spy();
+        element.addEventListener(ArcModelEventTypes.UrlHistory.query, spy);
+        input.dispatchEvent(new Event('input'));
+        assert.equal(element[previousValue], 'http', 'has the previous value set');
+        await aTimeout(2);
+        assert.isFalse(spy.called, 'the event is not called');
+        assert.isAbove(element[renderedSuggestions].length, 0, 'has rendered suggestions');
+        assert.isTrue(element[autocompleteOpened], 'autocomplete is rendered');
+      });
+    });
+
+    describe('suggestion handlers', () => {
+      /** @type UrlInputEditorElement */
+      let element;
+      /** @type ARCUrlHistory[] */
+      let items;
+      beforeEach(async () => {
+        element = await basicFixture();
+        element.value = 'http';
+        items = mockSingleQuery(element);
+        await element.renderSuggestions();
+        await nextFrame();
+        await aTimeout(5);
+      });
+
+      it('selects a suggestion value', async () => {
+        const item = /** @type HTMLElement */ (element.shadowRoot.querySelector('anypoint-item'));
+        item.click();
+        const sorted = [...items];
+        sortUrls(sorted, 'http');
+        assert.equal(element.value, sorted[0].url);
+      });
+
+      it('closes the list after selection', async () => {
+        const item = /** @type HTMLElement */ (element.shadowRoot.querySelector('anypoint-item'));
+        item.click();
+        assert.isFalse(element[autocompleteOpened]);
+      });
+
+      it('dispatches the change event', async () => {
+        const spy = sinon.spy();
+        element.addEventListener(RequestEventTypes.State.urlChange, spy);
+        const item = /** @type HTMLElement */ (element.shadowRoot.querySelector('anypoint-item'));
+        item.click();
+        assert.isTrue(spy.calledOnce);
+      });
+
+      it('highlights the next list item on ArrowDown', async () => {
+        const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
+        const e = new KeyboardEvent('keydown', {
+          composed: true,
+          bubbles: true,
+          cancelable: true,
+          code: 'ArrowDown',
+        });
+        input.dispatchEvent(e);
+        assert.isTrue(e.defaultPrevented, 'the event is cancelled');
+        const list = /** @type AnypointListbox */ (element.shadowRoot.querySelector('.url-autocomplete anypoint-listbox'));
+        assert.ok(list.highlightedItem, 'has a highlighted item');
+        const index = list.indexOf(list.highlightedItem);
+        assert.equal(index, 0, 'is the first item');
+      });
+
+      it('highlights the previous list item on ArrowUp', async () => {
+        const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
+        const e = new KeyboardEvent('keydown', {
+          composed: true,
+          bubbles: true,
+          cancelable: true,
+          code: 'ArrowUp',
+        });
+        input.dispatchEvent(e);
+        assert.isTrue(e.defaultPrevented, 'the event is cancelled');
+        const list = /** @type AnypointListbox */ (element.shadowRoot.querySelector('.url-autocomplete anypoint-listbox'));
+        assert.ok(list.highlightedItem, 'has a highlighted item');
+        const index = list.indexOf(list.highlightedItem);
+        assert.equal(index, items.length - 1, 'is the last item');
+      });
+
+      it('accepts selection on Enter', async () => {
+        const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
+        // highlight first item
+        input.dispatchEvent( new KeyboardEvent('keydown', {
+          composed: true,
+          bubbles: true,
+          cancelable: true,
+          code: 'ArrowDown',
+        }));
+        // send enter
+        const e = new KeyboardEvent('keydown', {
+          composed: true,
+          bubbles: true,
+          cancelable: true,
+          code: 'Enter',
+        });
+        input.dispatchEvent(e);
+        assert.isTrue(e.defaultPrevented, 'the event is cancelled');
+        const rendered = element[renderedSuggestions];
+        assert.equal(element.value, rendered[0].url, 'updates the url');
+      });
+
+      it('does not send the send request event when accepting selection', async () => {
+        const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
+        // highlight first item
+        input.dispatchEvent( new KeyboardEvent('keydown', {
+          composed: true,
+          bubbles: true,
+          cancelable: true,
+          code: 'ArrowDown',
+        }));
+        const spy = sinon.spy();
+        element.addEventListener(RequestEventTypes.send, spy);
+        // send enter
+        const e = new KeyboardEvent('keydown', {
+          composed: true,
+          bubbles: true,
+          cancelable: true,
+          code: 'Enter',
+        });
+        input.dispatchEvent(e);
+        assert.isFalse(spy.called);
+      });
+
+      it('sends the request when has no highlighted item', async () => {
+        const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
+        const spy = sinon.spy();
+        element.addEventListener(RequestEventTypes.send, spy);
+        // send enter
+        const e = new KeyboardEvent('keydown', {
+          composed: true,
+          bubbles: true,
+          cancelable: true,
+          code: 'Enter',
+        });
+        input.dispatchEvent(e);
+        assert.isTrue(spy.called);
+      });
+    });
+
+    describe('deleting suggestions', () => {
+      /** @type UrlInputEditorElement */
+      let element;
+      beforeEach(async () => {
+        element = await basicFixture();
+        element.value = 'http';
+        mockSingleQuery(element);
+        await element.renderSuggestions();
+        await nextFrame();
+        await aTimeout(5);
+      });
+
+      it('sends the delete event when removing a single suggestion', async () => {
+        const spy = sinon.spy();
+        element.addEventListener(ArcModelEventTypes.UrlHistory.delete, spy);
+        const button = /** @type HTMLElement */ (element.shadowRoot.querySelector('anypoint-item .remove-suggestion'));
+        button.click();
+        await nextFrame();
+        assert.isTrue(spy.calledOnce, 'the event is dispatched');
+        const e = spy.args[0][0];
+        assert.equal(e.id, button.dataset.id, 'has the id of the item');
+      });
+
+      it('removes an item from the list when deleted from the store', async () => {
+        const button = /** @type HTMLElement */ (element.shadowRoot.querySelector('anypoint-item .remove-suggestion'));
+        const { id } = button.dataset;
+        const renderedBefore = element[renderedSuggestions].length;
+        ArcModelEvents.UrlHistory.State.delete(document.body, id, 'whatever');
+        await nextFrame();
+        const renderedAfter = element[renderedSuggestions].length;
+        assert.equal(renderedAfter, renderedBefore - 1, 'has one item less');
+        const node = /** @type HTMLElement */ (element.shadowRoot.querySelector(`.remove-suggestion[data-id="${id}"]`));
+        assert.notOk(node, 'the item is not rendered');
+      });
+
+      it('sends the delete datastore destroy event when removing all suggestions', async () => {
+        const spy = sinon.spy();
+        element.addEventListener(ArcModelEventTypes.destroy, spy);
+        const button = /** @type HTMLElement */ (element.shadowRoot.querySelector('.clear-all-history-label'));
+        button.click();
+        await nextFrame();
+        assert.isTrue(spy.calledOnce, 'the event is dispatched');
+        const e = spy.args[0][0];
+        assert.deepEqual(e.stores, ['url-history'], 'has the stores property');
+      });
+
+      it('clears suggestions state when the data store is destroyed', async () => {
+        ArcModelEvents.destroyed(document.body, 'url-history');
+        assert.isFalse(element[autocompleteOpened], 'autocomplete is closed');
+        assert.isUndefined(element[suggestionsValue], 'has no suggestions');
+        assert.isUndefined(element[renderedSuggestions], 'has no rendered suggestions');
       });
     });
   });

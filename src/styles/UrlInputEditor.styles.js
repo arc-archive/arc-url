@@ -42,16 +42,12 @@ export default css`
   border-color: transparent;
 }
 
-anypoint-autocomplete anypoint-item {
-  padding: 0 24px;
-}
-
-anypoint-autocomplete anypoint-dropdown,
-anypoint-autocomplete anypoint-listbox {
+.url-autocomplete,
+.url-autocomplete .suggestions-container {
   box-sizing: border-box;
 }
 
-anypoint-autocomplete anypoint-listbox {
+.suggestions-container {
   border-radius: 0 0 8px 8px;
   border: 1px var(--url-input-editor-border-color, #e5e5e5) solid;
   border-top: none;
@@ -70,6 +66,10 @@ anypoint-autocomplete anypoint-listbox {
   color: inherit;
 }
 
+.overlay.autocomplete .input-wrapper {
+  border-bottom: 2px solid var(--url-input-editor-border-color, #e5e5e5);
+}
+
 .main-input {
   flex: 1;
   height: 40px;
@@ -79,16 +79,6 @@ anypoint-autocomplete anypoint-listbox {
   font-size: 1rem;
   background-color: inherit;
   color: inherit;
-}
-
-anypoint-autocomplete {
-  bottom: 0;
-}
-
-anypoint-item > div {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .toggle-icon {
@@ -118,4 +108,50 @@ url-detailed-editor {
   background-color: inherit;
   color: inherit;
 }
+
+.url-autocomplete anypoint-item {
+  padding: 0 24px;
+  cursor: default;
+  --anypoint-item-min-height: 36px;
+}
+
+.url-autocomplete anypoint-item > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.url-autocomplete .highlight {
+  background-color: var(--url-input-editor-highlight-background-color, #e5e5e5);
+}
+
+.clear-all-history-label,
+.remove-suggestion {
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.clear-all-history-label:hover,
+.remove-suggestion:hover {
+  color: var(--link-color, #1a73e8);
+  text-decoration: underline;
+}
+
+.remove-suggestion {
+  margin-left: 4px;
+}
+
+.suggestions-container {
+  overflow-x: hidden;
+  background-color: var( --anypoint-listbox-background-color, var(--primary-background-color) );
+  color: var(--anypoint-listbox-color, var(--primary-text-color));
+}
+
+.clear-all-history {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
 `;

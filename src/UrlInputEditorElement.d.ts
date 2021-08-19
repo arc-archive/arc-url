@@ -1,14 +1,14 @@
 import {LitElement, TemplateResult, CSSResult} from 'lit-element';
 import {ValidatableMixin} from '@anypoint-web-components/validatable-mixin';
 import {EventsTargetMixin} from '@advanced-rest-client/events-target-mixin';
+import { AnypointListbox } from '@anypoint-web-components/anypoint-listbox';
+import { UrlHistory } from '@advanced-rest-client/arc-types';
 import {UrlParser} from '../';
-import { AnypointAutocomplete } from '@anypoint-web-components/anypoint-autocomplete';
 import { 
-  autocompleteRef, 
   readAutocomplete,
   focusedValue,
   overlayOpenedValue,
-  suggestionsOpenedHandler,
+  toggleSuggestions,
   shadowContainerOpened,
   shadowContainerHeight,
   paramsEditorTemplate,
@@ -27,13 +27,27 @@ import {
   decodeEncode,
   dispatchAnalyticsEvent,
   processUrlParams,
-  autocompleteQuery,
-  enterKeyHandler,
   autocompleteResizeHandler,
   setShadowHeight,
   mainFocusBlurHandler,
   autocompleteOpened,
+  suggestionsValue,
+  renderedSuggestions,
+  suggestionsListTemplate,
+  suggestionItemTemplate,
+  previousValue,
+  filterSuggestions,
+  suggestionHandler,
+  setSuggestionsWidth,
+  autocompleteClosedHandler,
+  suggestionsList,
+  removeSuggestionHandler,
+  clearSuggestionsHandler,
+  urlHistoryDeletedHandler,
+  urlHistoryDestroyedHandler,
 } from './internals.js';
+import { ARCHistoryUrlDeletedEvent, ARCModelStateDeleteEvent } from '@advanced-rest-client/arc-events';
+
 
 /**
  * The request URL editor
@@ -81,22 +95,24 @@ export declare class UrlInputEditorElement {
    * @attribute
    */
   readOnly: boolean;
-  
-  [autocompleteRef]: AnypointAutocomplete;
 
   /**
    * An icon name for the main input suffix icon
    */
-  readonly inputIcon: string;
+  get inputIcon(): string;
   /**
    * A title for the main input suffix icon
    */
-  readonly inputIconTitle: string;
+  get inputIconTitle(): string;
   [focusedValue]: boolean;
   [overlayOpenedValue]: boolean;
   [shadowContainerOpened]: boolean;
   [shadowContainerHeight]: number;
   [autocompleteOpened]: boolean;
+  get [suggestionsList](): AnypointListbox;
+  [suggestionsValue]: UrlHistory.ARCUrlHistory[];
+  [renderedSuggestions]: UrlHistory.ARCUrlHistory[];
+  [previousValue]: string;
 
   constructor();
   
@@ -152,12 +168,6 @@ export declare class UrlInputEditorElement {
   [processUrlParams](parser: UrlParser, processFn: string): void;
 
   /**
-   * Handler for autocomplete element query event.
-   * Dispatches `url-history-query` to query history model for data.
-   */
-  [autocompleteQuery](e: CustomEvent): Promise<void>;
-
-  /**
    * Queries the data model for history data and sets the suggestions
    *
    * @param q URL query
@@ -167,24 +177,51 @@ export declare class UrlInputEditorElement {
   [keyDownHandler](e: KeyboardEvent): void;
 
   /**
-   * A handler called when the user press "enter" in any of the form fields.
-   * This will send a `send` event.
-   */
-  [enterKeyHandler](): void;
-
-  /**
    * Validates the element.
    */
   _getValidity(): boolean;
   [inputHandler](e: CustomEvent): void;
   [toggleHandler](e: PointerEvent): void;
   [mainFocusBlurHandler](e: Event): void;
-  [suggestionsOpenedHandler](e: CustomEvent): void;
+  /**
+   * Triggers URL suggestions rendering.
+   * If there are suggestions to render this will enable the dropdown.
+   */
+  renderSuggestions(): Promise<void>;
+  /**
+   * Performs the query on the current suggestions and, if any, renders them.
+   */
+  [filterSuggestions](): Promise<void>;
+  [toggleSuggestions](opened: boolean): void;
   [autocompleteResizeHandler](): void;
+  [suggestionHandler](): void;
+  /**
+   * Sets the width of the suggestions container so it renders
+   * the URL suggestions in the full width of the input container.
+   */
+  [setSuggestionsWidth](): void;
+  /**
+   * A handler for the close event dispatched by the suggestions drop down.
+   * Closes the suggestions (sets the state) and cancels the event.
+   */
+  [autocompleteClosedHandler](e: Event): void;
   [setShadowHeight](height: number): void;
   [paramsOpenedHandler](e: CustomEvent): void;
   [paramsClosedHandler](e: CustomEvent): void;
   [paramsResizeHandler](e: CustomEvent): Promise<void>;
+  /**
+   * Removes the rendered suggestion from the store and from the currently rendered list.
+   */
+  [removeSuggestionHandler](e: Event): Promise<void>;
+
+  /**
+   * Removes all stored history URLs.
+   */
+  [clearSuggestionsHandler](e: Event): Promise<void>;
+
+  [urlHistoryDeletedHandler](e: ARCHistoryUrlDeletedEvent): void;
+
+  [urlHistoryDestroyedHandler](e: ARCModelStateDeleteEvent): void;
   render(): TemplateResult;
   /**
    * A template for the main input element
@@ -194,6 +231,14 @@ export declare class UrlInputEditorElement {
    * @returns A template for the autocomplete element
    */
   [urlAutocompleteTemplate](): TemplateResult;
+  /**
+   * @returns The template for the suggestions list.
+   */
+  [suggestionsListTemplate](): TemplateResult[]|string;
+  /**
+   * @returns The template for an URL suggestion item.
+   */
+  [suggestionItemTemplate](item: UrlHistory.ARCUrlHistory): TemplateResult;
   /**
    * @returns A template for the background shadow below
    * the main input and the overlays

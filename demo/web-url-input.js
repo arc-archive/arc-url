@@ -3,7 +3,7 @@ import { DemoPage } from '@advanced-rest-client/arc-demo-helper';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@advanced-rest-client/arc-models/url-history-model.js';
-import { DataGenerator } from '@advanced-rest-client/arc-data-generator';
+import { ArcMock } from '@advanced-rest-client/arc-data-generator';
 import { ImportEvents, ArcNavigationEventTypes, ArcModelEvents } from '@advanced-rest-client/arc-events';
 import '../web-url-input.js';
 
@@ -16,7 +16,7 @@ class ComponentDemo extends DemoPage {
     this.componentName = 'web-url-input';
     this.compatibility = false;
     this.opened = false;
-    this.generator = new DataGenerator();
+    this.generator = new ArcMock();
 
     this.generateData = this.generateData.bind(this);
     this.deleteData = this.deleteData.bind(this);
@@ -26,14 +26,12 @@ class ComponentDemo extends DemoPage {
   }
 
   async generateData() {
-    await this.generator.insertUrlHistoryData({
-      size: 100,
-    });
+    await this.generator.store.insertUrlHistory(100);
     ImportEvents.dataImported(document.body);
   }
 
   async deleteData() {
-    await this.generator.destroyUrlData();
+    await this.generator.store.destroyUrlHistory();
     ArcModelEvents.destroyed(document.body, 'all');
   }
 

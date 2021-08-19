@@ -1,3 +1,5 @@
+import { UrlHistory } from '@advanced-rest-client/arc-types';
+
 /**
  * Returns a string where all characters that are not valid for a URL
  * component have been escaped. The escaping of a character is done by
@@ -53,3 +55,8 @@ export function decodeQueryString(str: string, replacePlus: boolean): string;
  * Cancels an event
  */
 export declare function cancelEvent(e: Event): void;
+
+/**
+ * Lists the suggestions lists before rendering.
+ */
+export declare function sortUrls(list: UrlHistory.ARCUrlHistory[], query: string): void;
