@@ -59,6 +59,7 @@ export declare interface ViewModel {
  * @fires change When a value change
  * @fires urlencode When requesting to encode current value
  * @fires urldecode When requesting to decode current value
+ * @deprecated Use `@advanced-rest-client/app` instead.
  */
 export declare class UrlParamsEditorElement {
   static readonly styles: CSSResult;

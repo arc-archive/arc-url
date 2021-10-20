@@ -48,6 +48,7 @@ import {
  * @fires suggestionsopenedchange
  * @fires input
  * @fires arcnavigateexternal
+ * @deprecated Use `@advanced-rest-client/app` instead.
  */
 export class WebUrlInputElement {
   static readonly styles: CSSResult;

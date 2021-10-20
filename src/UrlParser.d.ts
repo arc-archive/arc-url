@@ -2,6 +2,7 @@ import { UrlValueParser, UrlValueParserOptions } from './UrlValueParser';
 
 /**
  * A class to parse URL string.
+ * @deprecated Use `@advanced-rest-client/app` instead.
  */
 export declare class UrlParser extends UrlValueParser {
   constructor(value: string, opts?: UrlValueParserOptions);

@@ -55,6 +55,7 @@ import { ARCHistoryUrlDeletedEvent, ARCModelStateDeleteEvent } from '@advanced-r
  * The element renders an editor for a HTTP request editor.
  * 
  * @fires change When the editor value change
+ * @deprecated Use `@advanced-rest-client/app` instead.
  */
 export declare class UrlInputEditorElement {
   static readonly styles: CSSResult;

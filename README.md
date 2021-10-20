@@ -1,4 +1,8 @@
-# ARC URL
+# Deprecated
+
+This component is deprecated. Use `@advanced-rest-client/app` instead.
+
+----
 
 A module with logic an UI regions to support URL processing in Advanced REST Client application. It contains a logic to safely parse url with variables, build a URL input, or to enter any arbitrary URL with autosuggestions.
 

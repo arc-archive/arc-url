@@ -29,6 +29,7 @@ declare interface DataValues {
 }
 /**
  * Implements logic for parsing URL string.
+ * @deprecated Use `@advanced-rest-client/app` instead.
  */
 export declare class UrlValueParser {
   opts?: UrlValueParserOptions;
